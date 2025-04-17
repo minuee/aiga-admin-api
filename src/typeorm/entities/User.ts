@@ -9,7 +9,7 @@ import {
 import { Post } from './Post';
 import { Profile } from './Profile';
 
-@Entity({ name: 'users' })
+@Entity({ name: 'users',synchronize: false })
 export class User {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;

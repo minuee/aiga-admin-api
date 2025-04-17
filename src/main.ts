@@ -36,7 +36,7 @@ async function bootstrap() {
       skipMissingProperties: true,
     }),
   );
-  console.log("process.env",process.env.PORT , process.env.SWAGGER_USER)
+  console.log("process.env",process.env.PORT , process.env.SWAGGER_USER, process.env.SWAGGER_PWD)
   //swagger by nohsn 2025.03
   const options = {
     //customCss: '.swagger-ui .topbar { display: none }',
@@ -47,7 +47,7 @@ async function bootstrap() {
     expressBasicAuth({
       challenge: true,
       users: { [process.env.SWAGGER_USER] : process.env.SWAGGER_PWD },
-    }),
+    })
   );
   setupSwagger(app);
 

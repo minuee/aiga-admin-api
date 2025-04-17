@@ -7,8 +7,10 @@ import { Post } from './typeorm/entities/Post';
 import { Profile } from './typeorm/entities/Profile';
 import { User } from './typeorm/entities/User';
 import { Hospital } from './typeorm/entities/Hospital';
+import { Doctor } from './typeorm/entities/Doctor';
 import { UsersModule } from './users/users.module';
 import { HospitalsModule } from './hospital/hospitals.module';
+import { DoctorsModule } from './doctor/doctors.module';
 
 @Module({
   imports: [
@@ -20,12 +22,13 @@ import { HospitalsModule } from './hospital/hospitals.module';
       password: '1234',
       database: 'aiga2025',
       logging : true,
-      entities: [ Hospital,User, Profile, Post ],
+      entities: [ Hospital,Doctor,User, Profile, Post ],
       synchronize: false,/* production 모드에서는 반드시 false 데이터 유실 위험이 있음  */
     }),
     ConfigModule,
     UsersModule,
-    HospitalsModule
+    HospitalsModule,
+    DoctorsModule
   ],
   controllers: [AppController],
   providers: [AppService],
