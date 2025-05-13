@@ -7,6 +7,7 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
+import { DoctorCareer } from './DoctorCareer';
 
 @Entity('doctor_basic',{schema: 'clone_slack' ,synchronize: false })
 
@@ -28,7 +29,7 @@ export class Doctor {
   doctorname: string;
   
   @Column()
-  url: string;
+  doctor_url: string;
   
   @Column()
   prev_rid: string;
@@ -60,4 +61,7 @@ export class Doctor {
   @Column()
   updateAt: Date;
 
+  @OneToOne(() => DoctorCareer, (doctor_career) => doctor_career.rid )
+  @JoinColumn({ name : 'rid'})
+  doctor_career : DoctorCareer;
 }

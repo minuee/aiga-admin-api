@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from 'src/typeorm/entities/Doctor';
+import { DoctorCareer } from 'src/typeorm/entities/DoctorCareer';
 import { CreateDoctorDto } from 'src/doctor/dtos/CreateDoctor.dto';
 import { CreateDoctorParams, } from 'src/utils/types';
 import { Repository,Like } from 'typeorm';
@@ -51,9 +52,30 @@ export class DoctorsService {
     return this.doctorsRepository.find({
       where : {
         hid : id
-      }
+      },
+      order : {
+        deptname : 'ASC'
+      },
+      skip : 0,
+        take : 10
     });
   }
+
+  paginate( hid : string,query:any) {
+      const { page, take, orderName, order } = query;
+      return this.doctorsRepository.createQueryBuilder('db')
+      .select(["db.*"])
+      .addSelect((qb) => {
+        return qb.select('COUNT(*) as totalCount').from(Doctor,'db').where("db.hid = :hid", { hid })
+      }, "totalCount")
+      .leftJoin(DoctorCareer,'dc','db.rid = dc.rid')
+      .where("db.hid = :hid", { hid })
+      //.andWhere("db.status = :status", { status: 'ACTIVE' })
+      .orderBy( orderName == 'deptname' ? `db.${orderName}` : orderName,order)
+      .offset(page == 1 ? page-1 : (page-1)*take)
+      .limit(take)
+      .getRawMany();
+    }
 
   findDoctorsByKeyword( search_word : string) {
     return this.doctorsRepository.find({

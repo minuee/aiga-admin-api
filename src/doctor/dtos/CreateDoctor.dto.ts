@@ -24,7 +24,7 @@ export class CreateDoctorDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  url: string;
+  doctor_url: string;
 
   @ApiProperty()
   @IsOptional()

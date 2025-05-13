@@ -15,7 +15,7 @@ export type CreateDoctorParams = {
     data_version_id: string;
     depthname: string;
     doctrname: string;
-    url: string;
+    doctor_url: string;
     doctor_id: string;
     prev_id: string;
     short_id: string;

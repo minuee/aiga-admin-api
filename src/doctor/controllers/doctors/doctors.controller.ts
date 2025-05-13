@@ -1,8 +1,10 @@
 import { Controller, ParseIntPipe, NotFoundException } from '@nestjs/common';
-import { Body, Delete, Get, Param, Post, Put } from '@nestjs/common/decorators';
+import { Body, Delete, Get, Param, Post, Query } from '@nestjs/common/decorators';
 import { CreateDoctorDto } from 'src/doctor/dtos/CreateDoctor.dto';
 import { DoctorsService } from 'src/doctor/services/doctors/doctors.service';
 import { ApiTags } from '@nestjs/swagger';
+import { PageDto, PageOptionsDto } from "src/config/pagination";
+
 @ApiTags("Doctor")
 
 @Controller('doctors')
@@ -23,17 +25,42 @@ export class DoctorsController {
   }
 
   @Get('/hid/:hid')
-  async getDoctorsByHid(
-    @Param('hid') id: string,
-  ) {
+  async getPageDoctorss(
+    @Param('hid') hid: string,
+    @Query() pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<CreateDoctorDto>> {
+    console.log("hid",hid)
     try {
-      console.log("getDoctorsByHid", id)
-      const doctors = await this.doctorservice.findDoctorsByHid(id);
-      console.log("doctors",doctors)
-      return doctors;
+      let retData:any = {
+        data : [],
+        meta : {
+          currentPage : 0,
+          pageCount : 0,
+          totalCount : 0,
+          isOrder : 'default',
+          orderBy : 'ASC',
+          orderName : 'null'
+        }
+      }
+      const doctors:any = await this.doctorservice.paginate(hid,pageOptionsDto);
+      //console.log("doctors",doctors)
+      if ( doctors.length > 0 ) {
+        retData = {
+          data : doctors,
+          meta : {
+            currentPage : pageOptionsDto.page,
+            pageCount : pageOptionsDto.take,
+            orderBy : pageOptionsDto.order,
+            orderName : pageOptionsDto.orderName,
+            totalCount : parseInt(doctors[0].totalCount)
+          }
+        }
+        return retData;
+      }
+      
     } catch (error) {
       console.log("error",error)
-      throw new NotFoundException('Doctor not found');
+      throw new NotFoundException('Doctors not found');
     }
   }
   
