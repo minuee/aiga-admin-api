@@ -2,6 +2,7 @@ import { Controller, ParseIntPipe, NotFoundException } from '@nestjs/common';
 import { Body, Delete, Get, Param, Post, Query } from '@nestjs/common/decorators';
 import { CreateDoctorDto } from 'src/doctor/dtos/CreateDoctor.dto';
 import { DoctorsService } from 'src/doctor/services/doctors/doctors.service';
+import { DoctorPapersService } from 'src/doctor/services/doctors/doctor_papers.service';
 import { ApiTags } from '@nestjs/swagger';
 import { PageDto, PageOptionsDto } from "src/config/pagination";
 
@@ -9,7 +10,10 @@ import { PageDto, PageOptionsDto } from "src/config/pagination";
 
 @Controller('doctors')
 export class DoctorsController {
-  constructor(private doctorservice: DoctorsService) {}
+  constructor(
+    private doctorservice: DoctorsService,
+    private doctorPapersService: DoctorPapersService // 추가된 서비스
+  ) {}
 
   @Get()
   async getDoctors() {
@@ -63,6 +67,22 @@ export class DoctorsController {
       throw new NotFoundException('Doctors not found');
     }
   }
+
+  @Get('/paper/:doctorId')
+  async findDoctorPaper(
+    @Param('doctorId') doctorId: string,
+  ) {
+    try {
+      console.log("findDoctorsByKeyword", doctorId)
+      const papers = await this.doctorPapersService.findDoctorsByHid(doctorId);
+      console.log("papers",papers)
+      return papers;
+    } catch (error) {
+      console.log("error",error)
+      throw new NotFoundException('Doctor not found');
+    }
+  }
+  
   
   @Get('/search/:keyword')
   async findDoctorsByKeyword(

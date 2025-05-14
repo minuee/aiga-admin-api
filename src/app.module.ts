@@ -9,6 +9,7 @@ import { User } from './typeorm/entities/User';
 import { Hospital } from './typeorm/entities/Hospital';
 import { Doctor } from './typeorm/entities/Doctor';
 import { DoctorCareer } from './typeorm/entities/DoctorCareer';
+import { DoctorPaper } from './typeorm/entities/DoctorPaper';
 import { UsersModule } from './users/users.module';
 import { HospitalsModule } from './hospital/hospitals.module';
 import { DoctorsModule } from './doctor/doctors.module';
@@ -23,7 +24,7 @@ import { DoctorsModule } from './doctor/doctors.module';
       password: '1234',
       database: 'aiga2025',
       logging : true,
-      entities: [ Hospital,Doctor,User, Profile, Post , DoctorCareer],
+      entities: [ Hospital,Doctor,User, Profile, Post , DoctorCareer, DoctorPaper],
       synchronize: false,/* production 모드에서는 반드시 false 데이터 유실 위험이 있음  */
     }),
     ConfigModule,
