@@ -63,17 +63,19 @@ export class DoctorsService {
   }
 
   paginate( hid : string,query:any) {
-      const { page, take, orderName, order } = query;
-      return this.doctorsRepository.createQueryBuilder('db')
+      const { page, take, orderName, order,keyword } = query;
+      const qb =  this.doctorsRepository.createQueryBuilder('db')
       .select(["db.*","dc.jsondata"])
       .addSelect(["dc.jsondata"])
       .addSelect((qb) => {
         return qb.select('COUNT(*) as totalCount').from(Doctor,'db').where("db.hid = :hid", { hid })
       }, "totalCount")
       .leftJoin(DoctorCareer,'dc','db.rid = dc.rid')
-      .where("db.hid = :hid", { hid })
-      //.andWhere("db.status = :status", { status: 'ACTIVE' })
-      .orderBy( orderName == 'deptname' ? `db.${orderName}` : orderName,order)
+      .where("db.hid = :hid", { hid });
+      if ( keyword ) {
+        qb.where("db.doctorname like :keyword OR db.specialties like :keyword", { keyword: `%${keyword}%` })
+      }
+      return qb.orderBy( orderName == 'deptname' ? `db.${orderName}` : orderName,order)
       .offset(page == 1 ? page-1 : (page-1)*take)
       .limit(take)
       .getRawMany();

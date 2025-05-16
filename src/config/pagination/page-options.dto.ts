@@ -16,6 +16,10 @@ export class PageOptionsDto {
     @IsOptional()
     readonly orderName?: string;
 
+    @ApiPropertyOptional({default :'keyword'})
+    @IsOptional()
+    readonly keyword?: string;
+
     @ApiPropertyOptional({ enum: Order, default: Order.ASC })
     @IsEnum(Order)
     @IsOptional()

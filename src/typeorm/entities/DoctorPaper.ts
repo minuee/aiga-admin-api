@@ -18,8 +18,6 @@ export class DoctorPaper {
 
   @Column()
   rid: string;
-  
-
 
   @Column()
   data_version_id: string;
