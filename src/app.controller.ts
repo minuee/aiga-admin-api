@@ -5,10 +5,8 @@ const webPush  =  require('web-push')
 import { CreateMessageDto } from 'src/chatbot/dtos/CreateMessage.dto';
 import * as MockupData from 'src/utils/mockup';
 
-
 const publicVapidKey = process.env.PUSH_PUBLIC_VAPID_PUBLIC_KEY;
 const privateVapidKey = process.env.PUSH_PUBLIC_VAPID_PRIVATE_KEY;
-
 
 @Controller()
 export class AppController {
@@ -78,15 +76,15 @@ export class AppController {
   }
 
   @Post('chat')
-  receiveEvents(@Body() createHospitalDto: CreateMessageDto, @Res() res: Response) {
+  receiveEvents(@Body() createMessageDto: CreateMessageDto, @Res() res: Response) {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
     
     try {
-      const { user_id,msg_type,msg} = createHospitalDto;
-      console.log("createHospitalDto",createHospitalDto)
+      const { user_id,msg_type,msg} = createMessageDto;
+      console.log("createMessageDto",createMessageDto)
 
       let num = 0;
       let interval = setInterval(() => {
@@ -110,15 +108,14 @@ export class AppController {
     }
   }
   @Post('chat2')
-  receiveEvents2(@Body() createHospitalDto: CreateMessageDto, @Res() res: Response) {
+  receiveEvents2(@Body() createMessageDto: CreateMessageDto, @Res() res: Response) {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    
     try {
-      const { user_id,msg_type,msg} = createHospitalDto;
-      console.log("createHospitalDto",createHospitalDto)
+      const { user_id,msg_type,msg} = createMessageDto;
+      console.log("createMessageDto",createMessageDto)
 
       let num = 0;
       let interval = setInterval(() => {
@@ -171,7 +168,5 @@ export class AppController {
         success: false
       });
     }
-    
-    
   }
 }

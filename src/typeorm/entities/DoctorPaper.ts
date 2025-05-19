@@ -57,8 +57,11 @@ export class DoctorPaper {
 
   @Column()
   authorName: string;
-  
 
+  /* @Column()
+  firstAuthors : string;
+  1stAuthors : string;
+ */
   @Column()
   title_pubmed: string;
 

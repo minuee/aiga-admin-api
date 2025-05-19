@@ -7,7 +7,6 @@ import { CreateDoctorDto } from 'src/doctor/dtos/CreateDoctor.dto';
 import { CreateDoctorParams, } from 'src/utils/types';
 import { Repository,Like } from 'typeorm';
 
-
 @Injectable()
 export class DoctorsService {
   constructor(
@@ -63,24 +62,23 @@ export class DoctorsService {
   }
 
   paginate( hid : string,query:any) {
-      const { page, take, orderName, order,keyword } = query;
-      const qb =  this.doctorsRepository.createQueryBuilder('db')
-      .select(["db.*","dc.jsondata"])
-      .addSelect(["dc.jsondata"])
-      .addSelect((qb) => {
-        return qb.select('COUNT(*) as totalCount').from(Doctor,'db').where("db.hid = :hid", { hid })
-      }, "totalCount")
-      .leftJoin(DoctorCareer,'dc','db.rid = dc.rid')
-      .where("db.hid = :hid", { hid });
-      if ( keyword ) {
-        qb.where("db.doctorname like :keyword OR db.specialties like :keyword", { keyword: `%${keyword}%` })
-      }
-      return qb.orderBy( orderName == 'deptname' ? `db.${orderName}` : orderName,order)
-      .offset(page == 1 ? page-1 : (page-1)*take)
-      .limit(take)
-      .getRawMany();
+    const { page, take, orderName, order,keyword } = query;
+    const qb =  this.doctorsRepository.createQueryBuilder('db')
+    .select(["db.*","dc.jsondata"])
+    .addSelect(["dc.jsondata"])
+    .addSelect((qb) => {
+      return qb.select('COUNT(*) as totalCount').from(Doctor,'db').where("db.hid = :hid", { hid })
+    }, "totalCount")
+    .leftJoin(DoctorCareer,'dc','db.rid = dc.rid')
+    .where("db.hid = :hid", { hid });
+    if ( keyword ) {
+      qb.where("db.doctorname like :keyword OR db.specialties like :keyword", { keyword: `%${keyword}%` })
+    }
+    return qb.orderBy( orderName == 'deptname' ? `db.${orderName}` : orderName,order)
+    .offset(page == 1 ? page-1 : (page-1)*take)
+    .limit(take)
+    .getRawMany();
   }
-
 
   findDoctorsByKeyword( search_word : string) {
     return this.doctorsRepository.find({
@@ -89,8 +87,6 @@ export class DoctorsService {
       }
     });
   }
-
-  
 
   createDoctor(doctorDetails: CreateDoctorParams) {
     const newDoctor = this.doctorsRepository.create({
