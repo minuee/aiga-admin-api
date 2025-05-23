@@ -18,11 +18,11 @@ import { DoctorsModule } from './doctor/doctors.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '1234',
-      database: 'aiga2025',
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
       logging : true,
       entities: [ Hospital,Doctor,User, Profile, Post , DoctorCareer, DoctorPaper],
       synchronize: false,/* production 모드에서는 반드시 false 데이터 유실 위험이 있음  */
