@@ -28,7 +28,7 @@ async function bootstrap() {
   app.use(bodyParser.json({limit: '999mb'})); 
   app.use(bodyParser.urlencoded({limit: '999mb', extended: true}));
 
-  app.setGlobalPrefix('adminapi');
+  app.setGlobalPrefix(process.env.NODE_ENV === 'production' ? '' : 'adminapi');
 
   app.useGlobalPipes(
     new ValidationPipe({
