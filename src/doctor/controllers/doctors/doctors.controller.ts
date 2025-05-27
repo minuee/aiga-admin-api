@@ -18,9 +18,7 @@ export class DoctorsController {
   @Get()
   async getDoctors() {
     try {
-      console.log("getDoctors")
       const doctors = await this.doctorservice.findDoctors();
-      console.log("doctors",doctors)
       return doctors;
     } catch (error) {
       console.log("error",error)
@@ -33,7 +31,6 @@ export class DoctorsController {
     @Param('hid') hid: string,
     @Query() pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<CreateDoctorDto>> {
-    console.log("hid",hid)
     try {
       let retData:any = {
         data : [],
@@ -47,7 +44,6 @@ export class DoctorsController {
         }
       }
       const doctors:any = await this.doctorservice.paginate(hid,pageOptionsDto);
-      //console.log("doctors",doctors)
       if ( doctors.length > 0 ) {
         retData = {
           data : doctors,
@@ -73,9 +69,7 @@ export class DoctorsController {
     @Param('doctorId') doctorId: string,
   ) {
     try {
-      console.log("findDoctorsByKeyword", doctorId)
       const papers = await this.doctorPapersService.findDoctorsByHid(doctorId);
-      console.log("papers",papers)
       return papers;
     } catch (error) {
       console.log("error",error)
@@ -89,9 +83,7 @@ export class DoctorsController {
     @Param('keyword') keyword: string,
   ) {
     try {
-      console.log("findDoctorsByKeyword", keyword)
       const doctors = await this.doctorservice.findDoctorsByKeyword(keyword);
-      console.log("doctors",doctors)
       return doctors;
     } catch (error) {
       console.log("error",error)
@@ -102,7 +94,6 @@ export class DoctorsController {
   createHospital(@Body() createDoctorDto: CreateDoctorDto) {
     try {
       const { hid,...data} = createDoctorDto;
-      console.log("createHospitalDto",createDoctorDto)
       const newDoctor = this.doctorservice.createDoctor({ hid,...data });
       return { ...newDoctor};
     } catch (error) {

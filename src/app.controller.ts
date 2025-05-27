@@ -42,8 +42,7 @@ export class AppController {
     
     try {
       const message = "newssss";//{ message = "newssss"} = req?.body;
-      console.log("message",message);
-
+      
       const payload = JSON.stringify({
         messageType: 'supplement',
         title: 'Hello from PWA',
@@ -84,14 +83,12 @@ export class AppController {
     
     try {
       const { user_id,msg_type,msg} = createMessageDto;
-      console.log("createMessageDto",createMessageDto)
 
       let num = 0;
       let interval = setInterval(() => {
         const data = new Date().toLocaleTimeString();
         const randomText = Math.random().toString(36);
         const randomNumber = Math.floor(Math.random()*110);
-        console.log("data : ",num, randomText, randomNumber,MockupData.testStr[randomNumber])
         num++
         const retStr = MockupData.testStr[randomNumber] ? MockupData.testStr[randomNumber] : randomText;
         res.write(retStr);
@@ -115,14 +112,12 @@ export class AppController {
 
     try {
       const { user_id,msg_type,msg} = createMessageDto;
-      console.log("createMessageDto",createMessageDto)
-
+     
       let num = 0;
       let interval = setInterval(() => {
         const data = new Date().toLocaleTimeString();
         const randomText = Math.random().toString(36);
         const randomNumber = Math.floor(Math.random()*110);
-        console.log("data : ",num, randomText, randomNumber,MockupData.testStr[randomNumber])
         num++
         const retStr = MockupData.testStr[randomNumber] ? MockupData.testStr[randomNumber] : randomText;
         res.write(retStr);
@@ -151,7 +146,6 @@ export class AppController {
         const data = new Date().toLocaleTimeString();
         const randomText = Math.random().toString(36);
         const randomNumber = Math.floor(Math.random()*110);
-        console.log("data : ",num, randomText, randomNumber,MockupData.testStr[randomNumber])
         num++
         const retStr = MockupData.testStr[randomNumber] ? MockupData.testStr[randomNumber] : randomText;
         res.write(retStr);

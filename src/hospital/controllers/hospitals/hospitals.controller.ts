@@ -45,7 +45,6 @@ export class HospitalsController {
         }
       }
       const hospitals:any = await this.hospitalervice.paginate2(pageOptionsDto);
-      //console.log("hospitals",hospitals)
       if ( hospitals.length > 0 ) {
         retData = {
           data : hospitals,
@@ -82,7 +81,6 @@ export class HospitalsController {
         }
       }
       const hospitals:any = await this.hospitalervice.paginate2(pageOptionsDto);
-      console.log("hospitals",hospitals)
       if ( hospitals.length > 0 ) {
         retData = {
           data : hospitals[0],
@@ -99,20 +97,18 @@ export class HospitalsController {
       
     } catch (error) {
       console.log("error",error)
-      throw new NotFoundException('Hospital not found');
+      throw new NotFoundException('Data not found');
     }
   } */
 
   @Get('all')
   async getAllHospitals() {
     try {
-      //console.log("getHospitals")
       const hospitals = await this.hospitalervice.findHospitals();
-      //console.log("hospitals",hospitals)
       return hospitals;
     } catch (error) {
       //console.log("error",error)
-      throw new NotFoundException('Team not found');
+      throw new NotFoundException('Data not found');
     }
   }
   
@@ -121,13 +117,11 @@ export class HospitalsController {
     @Param('hid') id: string,
   ) {
     try {
-      //console.log("getHospitals", id)
       const hospitals = await this.hospitalervice.findHospitalsByHid(id);
-      //console.log("hospitals",hospitals)
       return hospitals;
     } catch (error) {
       //console.log("error",error)
-      throw new NotFoundException('Team not found');
+      throw new NotFoundException('Data not found');
     }
   }
   
@@ -136,25 +130,21 @@ export class HospitalsController {
     @Param('keyword') keyword: string,
   ) {
     try {
-      //console.log("getHospitals", keyword)
       const hospitals = await this.hospitalervice.findHospitalsByKeyword(keyword);
-      //console.log("hospitals",hospitals)
       return hospitals;
     } catch (error) {
       //console.log("error",error)
-      throw new NotFoundException('Team not found');
+      throw new NotFoundException('Data not found');
     }
   }
   @Post()
   createHospital(@Body() createHospitalDto: CreateHospitalDto) {
     try {
       const { hid,baseName,shortName} = createHospitalDto;
-      //console.log("createHospitalDto",createHospitalDto)
       const newHospital = this.hospitalervice.createHospital({ hid,baseName,shortName });
       return { ...newHospital};
     } catch (error) {
-      //console.log("error",error)
-      throw new NotFoundException('Team not found');
+      throw new NotFoundException('Data not found');
     }
   }
 }
