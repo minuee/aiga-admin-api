@@ -76,8 +76,7 @@ export class DoctorsController {
       throw new NotFoundException('Doctor not found');
     }
   }
-  
-  
+
   @Get('/search/:keyword')
   async findDoctorsByKeyword(
     @Param('keyword') keyword: string,

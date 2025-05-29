@@ -1,14 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from 'src/typeorm/entities/Hospital';
 import { Doctor as DoctorEntity } from 'src/typeorm/entities/Doctor';
-import { CreateUserPostDto } from 'src/users/dtos/CreateUserPost.dto';
-import {
-  CreateUserParams,
-  CreateHospitalParams,
-  CreateUserProfileParams,
-  UpdateUserParams,
-} from 'src/utils/types';
+import { CreateHospitalParams } from 'src/utils/types';
 import { Repository,Like } from 'typeorm';
 
 @Injectable()

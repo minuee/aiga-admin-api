@@ -80,7 +80,6 @@ export class AppController {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    
     try {
       const { user_id,msg_type,msg} = createMessageDto;
 

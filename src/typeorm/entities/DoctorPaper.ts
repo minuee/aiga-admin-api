@@ -1,12 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  PrimaryColumn,
-  Column,
-  OneToOne,
-  JoinColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity,PrimaryColumn,Column,OneToOne,JoinColumn } from 'typeorm';
 import { Doctor } from './Doctor';
 
 @Entity('doctor_paper',{schema: 'clone_slack' ,synchronize: false })
