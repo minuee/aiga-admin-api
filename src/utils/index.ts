@@ -12,6 +12,7 @@ export function setupSwagger(app: INestApplication): void {
   .setDescription('AIGA Admin API description by Noh.sn 2025.03')
   .setVersion('1.0.0')
   .addTag('swagger')
+  .addServer(process.env.NODE_ENV === 'production' ? '/adminapi' : "")
   .addBearerAuth({
     type: 'http',
     scheme: 'bearer',
