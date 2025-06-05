@@ -24,7 +24,7 @@ import { DoctorsModule } from './doctor/doctors.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       logging : true,
-      entities: [ Hospital,Doctor,User, Profile, Post , DoctorCareer, DoctorPaper],
+      entities: [ Hospital,Doctor,User,Profile,Post,DoctorCareer,DoctorPaper],
       synchronize: false,/* production 모드에서는 반드시 false 데이터 유실 위험이 있음  */
     }),
     ConfigModule,
