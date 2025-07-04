@@ -45,12 +45,12 @@ export class AppController {
       
       const payload = JSON.stringify({
         messageType: 'supplement',
-        title: 'Hello from PWA',
+        title: '의사 추천 서비스 AIGA',
         body: 'This is a test push notification',
-        icon: '/img/push/196.png',
-        badge: '/img/push/72.png',
+        icon: '/img/fav/Icon-196.png',
+        badge: '/img/fav/Icon-72.png',
         data: {
-          url: 'https://kormedi.com',
+          url: 'https://aigadev.kormedi.com',
         },
       });
 

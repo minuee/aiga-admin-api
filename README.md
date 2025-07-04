@@ -82,3 +82,14 @@ etc docker exec -it mongodb-container bash
 
 ## 에러 날때 ERROR [dev internal] load metadata for docker.io/library/node:16
 rm  ~/.docker/config.json
+
+曇り硝子の向こうは風の街問わず語りの心が切ないね
+彼は一つの重さも無い命貴方を失ってから
+背中を丸めながら指のリングを抜き取ったね
+俺に返すつもりならば捨ててくれ
+そうね誕生石ならルビーなのそんな言葉が頭に渦巻くよ
+あれは八月眩い陽の中で誓った愛の幻
+
+孤独が好きな俺さ気にしないで行っていいよ
+気が変わらぬうちに早く消えてくれ
+曇り硝子の向こうは風の街
