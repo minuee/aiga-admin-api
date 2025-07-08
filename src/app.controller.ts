@@ -4,17 +4,61 @@ import { Response } from 'express';
 const webPush  =  require('web-push')
 import { CreateMessageDto } from 'src/chatbot/dtos/CreateMessage.dto';
 import * as MockupData from 'src/utils/mockup';
+import { DataSource } from 'typeorm';
 
 const publicVapidKey = process.env.PUSH_PUBLIC_VAPID_PUBLIC_KEY;
 const privateVapidKey = process.env.PUSH_PUBLIC_VAPID_PRIVATE_KEY;
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly dataSource: DataSource,
+  ) {}
 
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Post('log')
+  async receiveLogs(@Body() body: any, @Res() res: Response) {
+    try {
+      const { session_id,user_id, user_email,user_agent, user_message,error_message, error_code } = body;
+      if ( session_id != null ) {
+        // SQL 쿼리 실행
+        await this.dataSource.query(
+          `
+          INSERT INTO errorlog (
+            user_id,
+            user_email,
+            session_id,
+            user_agent,
+            user_message,
+            error_message,
+            error_code
+          ) VALUES (?, ?, ?, ?, ?, ?, ?)
+          `,
+          [
+            user_id || null,
+            user_email || null,
+            session_id || null,
+            user_agent || null,
+            user_message || null,
+            error_message || null,
+            error_code || null,
+          ],
+        );
+        res.status(201).json({ success: true ,msg:'등록완료'});
+      }else{
+        res.status(201).json({ success: true , msg:"값이 없음" });
+      }
+
+      
+    } catch (error) {
+      console.error("로그 저장 오류:", error);
+      throw new NotFoundException('로그 저장 실패');
+    }
   }
 
   @Post('send-notification')

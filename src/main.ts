@@ -1,9 +1,12 @@
+import * as dotenv from 'dotenv';
+dotenv.config(); // ← 이걸 꼭 최상단에!
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory, } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as cookieParser from 'cookie-parser';
 import { join } from 'path';
 import { AppModule } from './app.module';
+
 
 //swagger 추가 by noh.sn
 import { setupSwagger } from './utils/index';
@@ -28,7 +31,8 @@ async function bootstrap() {
   app.use(bodyParser.json({limit: '999mb'})); 
   app.use(bodyParser.urlencoded({limit: '999mb', extended: true}));
 
-  app.setGlobalPrefix(process.env.NODE_ENV === 'production' ? '' : 'adminapi');
+  const env = process.env.NODE_ENV || 'development';
+  app.setGlobalPrefix(env === 'production' ? '' : 'adminapi');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -36,6 +40,7 @@ async function bootstrap() {
       skipMissingProperties: true,
     }),
   );
+  console.log('NODE_ENV222:',env, process.env.NODE_ENV);
   console.log("process.env",process.env.PORT , process.env.SWAGGER_USER, process.env.SWAGGER_PWD)
   //swagger by nohsn 2025.03
   const options = {
