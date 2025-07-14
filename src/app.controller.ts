@@ -126,9 +126,6 @@ export class AppController {
 
   @Post('send-notification')
   receiveSendPush(@Body() req: any, @Res() res: Response) {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
     webPush.setVapidDetails('mailto:minuee@kormedi.com', publicVapidKey, privateVapidKey);
     const subscriptions = [
       {
@@ -149,6 +146,11 @@ export class AppController {
           "p256dh":"BACuKPYHdfIqzucW6eWUSMhOgzC6YVKMKPMYQTxv8EM3uR2yl0Dvsd-CtElKOggk_OYVGLK8KkIn4QvNrizDnSI",
           "auth":"aHvOxmUls-aOITmxotnATg"
         }
+      },
+      {
+        "endpoint":"https://fcm.googleapis.com/fcm/send/esu7UxTXzdk:APA91bGX1KbtS2Wiz0b3AjyAqb-8ib9tYMXUVYMQeoVU2eJ-KPvfRiEWcGcBD-Ih3dH6Kvo-yhV8pLbUFVExM7Wl0IcRk6miFg0EijH9IVs7eUGAj_gnu_Ynmb-ZAxY9d1tkuEE-ThCs",
+        "expirationTime":null,
+        "keys":{"p256dh":"BBSBfgBcWof3kTWJBeg3m5fC01hBY_-k5o4yThiwLYw2flH7PmOHrJz76WCl9CBG18vzJwhpeqDw7_0XT6AnUXw","auth":"Ox1rOcVTd0SdxtdJgMVHvw"}
       }
     ]
     
