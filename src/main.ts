@@ -41,19 +41,31 @@ async function bootstrap() {
     }),
   );
   console.log('NODE_ENV222:',env, process.env.NODE_ENV);
-  console.log("process.env",process.env.PORT , process.env.SWAGGER_USER, process.env.SWAGGER_PWD)
+  console.log("process.env",process.env.PORT , process.env.SWAGGER_USER, process.env.SWAGGER_PASS)
   //swagger by nohsn 2025.03
   const options = {
     //customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: "Korea Medicare Crawler API",
   };
+
+  const swaggerUser = process.env.SWAGGER_USER || 'admin';
+  const swaggerPass = process.env.SWAGGER_PASS || 'password123';
   app.use(
+    ['/v1/docs', '/v1/doc-json'], // Swagger 경로들
+    expressBasicAuth({
+      users: { [swaggerUser] : swaggerPass },
+      challenge: true,
+      realm: 'AIGA Swagger Docs',
+    }),
+  );
+
+  /* app.use(
     ['v1/docs'],
     expressBasicAuth({
       challenge: true,
       users: { [process.env.SWAGGER_USER] : process.env.SWAGGER_PWD },
     })
-  );
+  ); */
   setupSwagger(app);
 
 

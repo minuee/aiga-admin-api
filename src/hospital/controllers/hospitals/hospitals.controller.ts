@@ -1,9 +1,8 @@
 import { Controller, ParseIntPipe, NotFoundException, Query,DefaultValuePipe } from '@nestjs/common';
 import { Body, Delete, Get, Param, Post, Put } from '@nestjs/common/decorators';
 import { CreateHospitalDto } from 'src/hospital/dtos/CreateHospital.dto';
-import { CreateUserPostDto } from 'src/users/dtos/CreateUserPost.dto';
-import { CreateUserProfileDto } from 'src/users/dtos/CreateUserProfile.dto';
-import { UpdateUserDto } from 'src/users/dtos/UpdateUser.dto';
+import { UpdateHospitalDto } from 'src/hospital/dtos/UpdateHospital.dto';
+
 import { HospitalsService } from 'src/hospital/services/hospitals/hospitals.service';
 import { PageDto, PageOptionsDto } from "src/config/pagination";
 import { ApiTags } from '@nestjs/swagger';
@@ -29,10 +28,9 @@ export class HospitalsController {
 
 
   @Get()
-  async getHospitals(
-    @Query() pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<CreateHospitalDto>> {
+  async getHospitals( @Query() pageOptionsDto: PageOptionsDto ): Promise<PageDto<CreateHospitalDto>> {
     try {
+      console.log("pageOptionsDto",pageOptionsDto)
       let retData:any = {
         data : [],
         meta : {
@@ -53,6 +51,7 @@ export class HospitalsController {
             pageCount : pageOptionsDto.take,
             orderBy : pageOptionsDto.order,
             orderName : pageOptionsDto.orderName,
+            isAll : pageOptionsDto.isAll,
             totalCount : parseInt(hospitals[0].totalCount)
           }
         }
@@ -62,6 +61,34 @@ export class HospitalsController {
     } catch (error) {
       console.log("error",error)
       throw new NotFoundException('Hospital not found');
+    }
+  }
+
+  @Put(':hid')
+  async updateHospitalByHid(
+    @Param('hid') hid: string,
+    @Body() updateHospitalDto: UpdateHospitalDto,
+  ) {
+    try {
+      const result = await this.hospitalervice.updateHospital(hid, updateHospitalDto);
+      if (result.affected === 0) {
+       // throw new NotFoundException(`Hospital with HID #${hid} not found.`);
+        return {
+          success: false,
+          message: `Hospital with HID #${hid} not found.`
+        };
+      }
+      return {
+        success: true,
+        message: `Successfully updated hospital with HID #${hid}.`,
+      };
+    } catch (error) {
+      // Let NestJS's global exception filter handle the error for a consistent response
+      console.log("error",error) 
+      return {
+        success: false,
+        message: 'Failed to update hospital.',
+      };
     }
   }
   /* 

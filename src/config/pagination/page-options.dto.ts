@@ -16,6 +16,11 @@ export class PageOptionsDto {
     @IsOptional()
     readonly orderName?: string;
 
+    @ApiPropertyOptional({default : false})
+    @IsOptional()
+    readonly isAll?: boolean;
+    
+
     @ApiPropertyOptional({default :'keyword'})
     @IsOptional()
     readonly keyword?: string;

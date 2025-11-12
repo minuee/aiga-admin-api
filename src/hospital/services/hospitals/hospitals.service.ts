@@ -27,17 +27,23 @@ export class HospitalsService {
   }
 
   paginate2( query:any) {
-    const { page, take, isOrder, orderName, order } = query;
+    const { page, take, isOrder, orderName, order , isAll = false } = query;
+    const isAllBoolean =  isAll == 'true' ? true : false;
     return this.hospitalsRepository.createQueryBuilder('hospital')
     .select(["hospital.*","COUNT(db.rid) as doctor_count"])
     .addSelect((qb) => {
-      return qb.select('COUNT(*) as totalCount').from(Hospital,'hp')
+      const subQuery = qb.select('COUNT(*) as totalCount').from(Hospital,'hp');
+      if(isAllBoolean == false) {
+        subQuery.where('hp.hid LIKE :hidPrefix', { hidPrefix: 'H01KR%' });
+      }
+      return subQuery;
     }, "totalCount")
     .leftJoin(DoctorEntity,'db','db.hid = hospital.hid')
     .groupBy('hospital.hid')
     .orderBy( isOrder == 'hid' ? `hospital.${orderName}` : orderName,order)
     .offset(page == 1 ? page-1 : (page-1)*take)
     .limit(take)
+    .andWhere(isAllBoolean == false ? 'hospital.hid LIKE :hidPrefix' : '1=1', isAllBoolean == false ? { hidPrefix: 'H01KR%' } : {})
     //.select(["hospital.hid","doctor_basic.doctor_count"])
     /*.leftJoin(subquery => {
       return subquery
@@ -89,5 +95,9 @@ export class HospitalsService {
     });
 
     return this.hospitalsRepository.save(newHospital);
+  }
+
+  updateHospital(hid: string, updateHospitalDetails: CreateHospitalParams) {
+    return this.hospitalsRepository.update({ hid }, { ...updateHospitalDetails });
   }
 }

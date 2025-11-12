@@ -56,7 +56,6 @@ export class AppController {
       }else{
         res.status(201).json({ success: true , msg:"값이 없음" });
       }
-
       
     } catch (error) {
       console.error("로그 저장 오류:", error);
@@ -125,67 +124,80 @@ export class AppController {
   }
 
   @Post('send-notification')
-  receiveSendPush(@Body() req: any, @Res() res: Response) {
+  async receiveSendPush(@Body() req: any, @Res() res: Response) {
     webPush.setVapidDetails('mailto:minuee@kormedi.com', publicVapidKey, privateVapidKey);
     const subscriptions = [
-      {
-        "endpoint":"https://fcm.googleapis.com/fcm/send/fm2hmlT7kQc:APA91bEec-rldnEMPg8p1VROJc9uH7iRiGyc8PYpS3sbjYwOnslPVpxsS3zQdG5vGaeRY5emg25Q2x-JJZoaw1VwK-jFk_jUM-L8y4OzC2jf4Pwlv_GsTRx2hJ2-f_AGCkYmbHu33Fcc","expirationTime":null,
-        "keys":{"p256dh":"BLP9eodLTiR-bocEKK7QfcY48aY6gF8wD3IS0T31KaDTUEnF7ovM6S__y2fTDTcPeF01yUk02r9Iw5T-sIN1N6E","auth":"hlAOjAgd-RY7VfBVVvNigQ"}
+      /* {
+        "endpoint":"https://web.push.apple.com/QLRQsViD6h3ulWtK4PROad7IgFzAeLW_P7QXUabwlTZnDDZq_l2fVNZPxLF9yci1w0h-FUWHErsQ9-cHFp5VjDMFlFVgW39bYpiIQvuWVEwpq-AmH3JZPJpYirpiQQ9-NVq1vEUcleye46xGZXps28aqxak0_PPiNUrYbv-aZ-E",
+        "keys":{"p256dh":"BNf4ksDv2kdTVKJeDXEXsRY82c6muX_C8IfiIWghk_N-WNUvAP-otG4XEICFFjHTUNfEzXL6-qb3QIYqMzRK4nA","auth":"Tqvbn9KQ5YjbHtUZfXRmSA"}
       },
       {
-        "endpoint": "https://jmt17.google.com/fcm/send/dzOvj0_24MY:APA91bFyLgMsl2_1lH5Z9j7H332RKjx0l-3jXdejY6lRFWKj588EJL5sIzxqADfTvpzAYGe_SXo7wLUejo1BIQCdNYsYcjx_plgU4axPwL-CZEar_uCdmtlunK_9SnHe0cMf9yLyc0oL",
-        "expirationTime": null,
-        "keys": {
-            "p256dh": "BGY1vPeZs_inj8-BOvkkj0B_oxzGq0Yz1U3ZhPT244nEu-24fMfVNL00PtVbUoFqsVKXao1LrECxIR7mLBfGwhU",
-            "auth": "fGKiWrW45OEtuLJ_AicVjg"
-        }
+        "endpoint":"https://web.push.apple.com/QLrm9df4O0xneM5zaxVRuGq3d4R4arFsmcdCSOM5Abqs5INdDeswv7FvNy33W8e3zNnVd9YLJRIA37W5GbjiBuod4mcjZPRsjM3eBLOTEnKxNr2MeU96aUkddvQql8LHMuhnA0X5Co2dI06jpdLd5r2UOckDlx7LNTdpiXm3x2I","keys":{"p256dh":"BBrcnchNEr_tTAW-VxKK7FPnMSVb5pj-BE39WJvxplUXAh1AQ8cOa826QARwUD8hhoMfVR7LRzX4kS-RhiQdH9s","auth":"3UKdL1_f2NrAU4eSKsS0vQ"}
+      }, */
+      /* {
+        "endpoint":"https://fcm.googleapis.com/fcm/send/eZuEfJOn2M4:APA91bFCDrNmws1kLyaI7aUfeYr8Cz0w6xCCB7PpNDfpLSsLf2OSoV28ssw0i6IrLve18NacPJk-0av255slR4ySF_2kBNpWUbfJheeAB8-AXm_i7LIIpqq2qykf3lCTcBIddHf0bZgK",
+        "expirationTime":null,"keys":{"p256dh":"BHEt7ufqtVsRpaOoSuAPNPCa0pn-BPcyHdkuCp6MKkOcLuGhzjo2ZEZbtbbI3q2REBGW6TXd8WyGBhmX0JnjyZ8","auth":"d6ijCu7tMyLrLmgG49P-cA"}
       },
       {
-        "endpoint":"https://web.push.apple.com/QFr87S555VSGrHFELyZEgRaV-PwtNTWavloQnibgibIvGjgEINYkm0xTcMHPSqeVwHIq5oPHCsZimc0WPw_iKa0GzYwEk-Tz1zcBcGO6kNuEeO2OffvZMQ_TssCKqtkXMbaYQAoxfbaXtRiepUk9b3I9vGykE36-PAPzjp2xiFQ",
-        "keys":{
-          "p256dh":"BACuKPYHdfIqzucW6eWUSMhOgzC6YVKMKPMYQTxv8EM3uR2yl0Dvsd-CtElKOggk_OYVGLK8KkIn4QvNrizDnSI",
-          "auth":"aHvOxmUls-aOITmxotnATg"
-        }
+        "endpoint":"https://fcm.googleapis.com/fcm/send/f8hzSflyPfA:APA91bF8YLBIkxKjqxDRHMzVMfCOKx-f9QPnyq4W7scJKJwevYKsYmFSHCUe-KuVja30NmVUpOLvrAffc2dEDCHGLE90sYDEpNu6QQPC_aRc1Vg_pmSn6S-5ev6SaSuNlnxHSA83jh9W","expirationTime":null,"keys":{"p256dh":"BOFipdmaHkAVak7XfVyXtwUL-9WuWJVDfCqmS03eIsfoM5bFhy3kWYxunAmnXqXZ90A2Ow-WS94Rl_XC3E-xdEo","auth":"VxgjHFyekB7uIPRoYloJJQ"}
+      }, */
+      /* {
+        "endpoint":"https://web.push.apple.com/QNiSyPyX0671JyJS_EaeOEh-PlWNAIw-7jDM2valC6toW48OdNVezT2IXabYUnHMhrc6jLF64IcUmgGC-IyogtAH3q8vFnLt62gJSjAla44aSIQG0KR21f0FJiZN24nBwg655wwdLvPYWIVW0xyCtfJgXxorWSWbjO9u1tBmOIE",
+        "keys":{"p256dh":"BDvqdsG2B_gXlas0fqOUdFmzHnVvJNdKZVZiLoivqElpxwDryYmD7xWgHyMqKo_1V2g5Nv8s89q6dYaLbNsHvrQ","auth":"myULUwK2p_kgr8256dUIFw"}
       },
       {
-        "endpoint":"https://fcm.googleapis.com/fcm/send/esu7UxTXzdk:APA91bGX1KbtS2Wiz0b3AjyAqb-8ib9tYMXUVYMQeoVU2eJ-KPvfRiEWcGcBD-Ih3dH6Kvo-yhV8pLbUFVExM7Wl0IcRk6miFg0EijH9IVs7eUGAj_gnu_Ynmb-ZAxY9d1tkuEE-ThCs",
-        "expirationTime":null,
-        "keys":{"p256dh":"BBSBfgBcWof3kTWJBeg3m5fC01hBY_-k5o4yThiwLYw2flH7PmOHrJz76WCl9CBG18vzJwhpeqDw7_0XT6AnUXw","auth":"Ox1rOcVTd0SdxtdJgMVHvw"}
-      }
+        "endpoint":"https://web.push.apple.com/QMytXB4B1ynFy2nzmsVWXpBaUJ3bVJq0zkLjIUT0VDR6EfMHe9erMfqF4ze-IX8ho0sFwLshBrK-exXOgwZjavx4uA_wqbpVgs1DNHPmfs6i5PSdaIps_lYZUsmEWfBIsiW9KKky8942yZ5EqgKqJw79qNB1JXKM-WlCx6UWN4s","keys":{"p256dh":"BKCiwVlz5QEAD6FL9CNo8k_4fIb46gdvKQjEbAtlhpNca21cU4kPK-DFrPrQYHI3oqCHUQSAmeEk80GPXzcqQ3I","auth":"myjE9XccYJ6sJ2wgTpUukQ"}
+      }, */
+     /*  {
+        "endpoint":"https://fcm.googleapis.com/fcm/send/ccHRjAsbdW4:APA91bE5LH-qlCt-0djmO8eYAscf0zj8bf1Rdf7aSiMtEgYPcBvuvgKHmOhu6kds9aaOhwwTXHTd6hzCrrWF4XPc0oR50EUlc8datr2etKoWEG4Qx98SoX-3mIb4jKaVfUVg_ZgQAHr2","expirationTime":null,"keys":{"p256dh":"BDGi5Ou-d5ge2Eq-TxEPXjKKZ444_ibcnrvJZUUIZ-0U5ifARGTDEkEK6y5MIzyC7EMfT4o2nhicxPlimWxtRJ8","auth":"cNOCJZvRtVA0GBBahK905Q"}
+      }, */
+      {"endpoint":"https://web.push.apple.com/QCb2AkYP16YGSvv6GCy66lwH1CfsNm_kyaRmr2iPKfd49gkzc51VcNRFFB4OzR0ebOPu9dl1RJHMiX2EvTJGlu527GwzBgutLorLiXSQyhxi94R5kBhqkhhv2tqCoK5v6WFUivVqF5pVfDmZfXOqeuXsEiNK9j1xJWrnsJspYZ8","keys":{"p256dh":"BB3pVmRn5FA8qfx1NyJT8hWwTNzXs_5uWhUtRLL0wVlNywEWNe1SFsU5HES5GW5UCC8kzppGkOx2NWyZ0qDwYCU","auth":"Laf77f_FvRpUZWDiSTveCA"}}
     ]
-    
-    try {
-      const message = "newssss";//{ message = "newssss"} = req?.body;
-      
-      const payload = JSON.stringify({
-        messageType: 'supplement',
-        title: '의사 추천 서비스 AIGA',
-        body: 'This is a test push notification',
-        icon: '/img/fav/Icon-196.png',
-        badge: '/img/fav/Icon-72.png',
-        data: {
-          url: 'https://aigadev.kormedi.com/ko/chat',
-        },
-      });
 
-      subscriptions.forEach(subscription => {
-        webPush.sendNotification(subscription, payload).catch((error:any) => {
-          console.error(error.stack);
-        });
-      });
-        
-      res.send({
-        code : 200,
-        success: true
-      });
-      
-    } catch (error) {
-      console.log("error",error)
-      res.send({
-        code : 200,
-        success: false
-      });
+    const payload = JSON.stringify({
+      messageType: 'supplement',
+      title: '의사 추천 서비스 AIGA',
+      body: 'This is a test push notification',
+      icon: '/img/fav/Icon-196.png',
+      badge: '/img/fav/Icon-72.png',
+      data: {
+        url: 'https://aigadev.kormedi.com/ko',
+      },
+    });
+    let errorCount = 0;
+   /*  
+    subscriptions.forEach(async (subscription) => {
+      try {
+        await webPush.sendNotification(subscription, payload);
+      } catch (error) {
+        console.error('푸시 전송 실패:', error);
+        errorCount++;
+        // 예: 410 Gone 이면 구독 제거 처리
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          // DB에서 구독 삭제 로직 호출
+          console.log('만료된 구독 발견, 삭제 처리 필요');
+        }
+      }
+    }); */
+    for (const subscription of subscriptions) {
+      try {
+        await webPush.sendNotification(subscription, payload);
+      } catch (error: any) {
+        console.error('푸시 전송 실패:', error);
+        errorCount++;
+        if (error.statusCode === 410 || error.statusCode === 404) {
+          console.log('만료된 구독 발견, 삭제 처리 필요');
+          // 구독 삭제 로직 실행
+        }
+      }
     }
+    console.log(`발송건수 : ${errorCount}건`);
+    res.send({
+      code : 200,
+      success: errorCount == 0 ? true : false,
+      message : errorCount == 0 ? '전부발송완료' : `발송실패 : ${errorCount}건`
+    });
+
   }
 
   @Post('chat')

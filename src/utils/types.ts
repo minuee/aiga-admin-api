@@ -9,6 +9,34 @@ export type CreateHospitalParams = {
   shortName: string;
 }
 
+export type CreateReviewParams = {
+  review_id: number;
+  user_id: string;
+  doctor_id: number;
+  content: string;
+  nickname: string;
+  total_score: number;
+  kindness_score: number;
+  explaination_score: number;
+  satisfaction_score: number;
+  recommand_score: number;
+  createAt: Date;
+  updateAt: Date;
+}
+
+export type UpdateReviewParams = {
+  review_id: any;
+  user_id: string;
+  doctor_id: string;
+  content: string;
+  nickname: string;
+  total_score: number;
+  kindness_score: number;
+  explaination_score: number;
+  satisfaction_score: number;
+  recommand_score: number;
+  }
+
 export type CreateDoctorParams = {
   rid: string;
   hid: string;

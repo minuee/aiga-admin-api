@@ -6,6 +6,7 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
+  Double,
 } from 'typeorm';
 
 import { Doctor } from './Doctor';
@@ -21,6 +22,18 @@ export class Hospital {
 
   @Column()
   shortName: string;
+
+  @Column()
+  address: string;
+
+  @Column()
+  telephone: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 7 })
+  lat: number;
+
+  @Column({ type: 'decimal', precision: 10, scale: 7 })
+  lon: number;
 
   @Column()
   createAt: Date;

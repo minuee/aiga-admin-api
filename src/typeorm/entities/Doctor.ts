@@ -6,8 +6,10 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { DoctorCareer } from './DoctorCareer';
+import { Hospital } from './Hospital';
 
 @Entity('doctor_basic',{schema: 'clone_slack' ,synchronize: false })
 
@@ -64,4 +66,8 @@ export class Doctor {
   @OneToOne(() => DoctorCareer, (doctor_career) => doctor_career.rid )
   @JoinColumn({ name : 'rid'})
   doctor_career : DoctorCareer;
+
+  @ManyToOne(() => Hospital)
+  @JoinColumn({ name: 'hid' })
+  hospital: Hospital;
 }

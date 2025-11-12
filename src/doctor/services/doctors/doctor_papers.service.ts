@@ -13,7 +13,7 @@ export class DoctorPapersService {
   findDoctorsByHid( id : string) {
     return this.doctorPapersRepository.find({
       where : {
-        rid : id
+        rid_long : id
       },
       order : {
         paper_id : 'ASC'

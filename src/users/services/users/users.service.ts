@@ -4,11 +4,7 @@ import { Post } from 'src/typeorm/entities/Post';
 import { Profile } from 'src/typeorm/entities/Profile';
 import { User } from 'src/typeorm/entities/User';
 import { CreateUserPostDto } from 'src/users/dtos/CreateUserPost.dto';
-import {
-  CreateUserParams,
-  CreateUserProfileParams,
-  UpdateUserParams,
-} from 'src/utils/types';
+import { CreateUserParams,CreateUserProfileParams,UpdateUserParams } from 'src/utils/types';
 import { Repository } from 'typeorm';
 
 @Injectable()
