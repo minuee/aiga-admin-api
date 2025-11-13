@@ -4,13 +4,16 @@ import { Doctor } from 'src/typeorm/entities/Doctor';
 import { DoctorCareer } from 'src/typeorm/entities/DoctorCareer';
 import { DoctorPaper } from 'src/typeorm/entities/DoctorPaper';
 import { CreateDoctorDto } from 'src/doctor/dtos/CreateDoctor.dto';
+import { UpdateDoctorBasicDto } from 'src/doctor/dtos/UpdateDoctorBasic.dto';
+import { UpdateDoctorCareerDto } from 'src/doctor/dtos/UpdateDoctorCareer.dto';
 import { CreateDoctorParams, } from 'src/utils/types';
 import { Repository,Like } from 'typeorm';
 
 @Injectable()
 export class DoctorsService {
   constructor(
-    @InjectRepository(Doctor) private doctorsRepository: Repository<Doctor>
+    @InjectRepository(Doctor) private doctorsRepository: Repository<Doctor>,
+    @InjectRepository(DoctorCareer) private doctorsCareerRepository: Repository<DoctorCareer>
   ) {}
 
   async findDoctors() {
@@ -94,5 +97,13 @@ export class DoctorsService {
     });
 
     return this.doctorsRepository.save(newDoctor);
+  }
+
+  updateDoctorBasic(rid: string, updateDoctorBasicDetails: UpdateDoctorBasicDto) {
+    return this.doctorsRepository.update({ rid }, { ...updateDoctorBasicDetails });
+  }
+
+  updateDoctorCareer(rid: string, updateDoctorCareerDetails: UpdateDoctorCareerDto) {
+    return this.doctorsCareerRepository.update({ rid }, { ...updateDoctorCareerDetails });
   }
 }

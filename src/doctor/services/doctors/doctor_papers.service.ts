@@ -22,4 +22,8 @@ export class DoctorPapersService {
       take : 1000
     });
   }
+
+  deleteDoctorPaper(paper_id: string, ) {
+    return this.doctorPapersRepository.delete({ paper_id });
+  }
 }

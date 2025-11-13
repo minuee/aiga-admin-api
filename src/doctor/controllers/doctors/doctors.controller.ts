@@ -1,6 +1,8 @@
 import { Controller, ParseIntPipe, NotFoundException } from '@nestjs/common';
-import { Body, Delete, Get, Param, Post, Query } from '@nestjs/common/decorators';
+import { Body, Put, Delete, Get, Param, Post, Query } from '@nestjs/common/decorators';
 import { CreateDoctorDto } from 'src/doctor/dtos/CreateDoctor.dto';
+import { UpdateDoctorBasicDto } from 'src/doctor/dtos/UpdateDoctorBasic.dto';
+import { UpdateDoctorCareerDto } from 'src/doctor/dtos/UpdateDoctorCareer.dto';
 import { DoctorsService } from 'src/doctor/services/doctors/doctors.service';
 import { DoctorPapersService } from 'src/doctor/services/doctors/doctor_papers.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -77,6 +79,88 @@ export class DoctorsController {
     }
   }
 
+  @Put('/basoc/:doctor_id')
+  async updateBasicByDoctorid(
+    @Param('doctor_id') doctor_id: string,
+    @Body() updateDoctorBasicDto: UpdateDoctorBasicDto,
+  ) {
+    try {
+      const result = await this.doctorservice.updateDoctorBasic(doctor_id, updateDoctorBasicDto);
+      if (result.affected === 0) {
+       // throw new NotFoundException(`Hospital with HID #${hid} not found.`);
+        return {
+          success: false,
+          message: `Doctor Basic with doctor_id #${doctor_id} not found.`
+        };
+      }
+      return {
+        success: true,
+        message: `Successfully updated Doctor Basic with doctor_id #${doctor_id}.`,
+      };
+    } catch (error) {
+      // Let NestJS's global exception filter handle the error for a consistent response
+      console.log("error",error) 
+      return {
+        success: false,
+        message: 'Failed to update Doctor Basic.',
+      };
+    }
+  }
+  @Put('/career/:doctor_id')
+  async updateCareerByDoctorid(
+    @Param('doctor_id') doctor_id: string,
+    @Body() updateDoctorCareerDto: UpdateDoctorCareerDto,
+  ) {
+    try {
+      const result = await this.doctorservice.updateDoctorCareer(doctor_id, updateDoctorCareerDto);
+      if (result.affected === 0) {
+       // throw new NotFoundException(`Hospital with HID #${hid} not found.`);
+        return {
+          success: false,
+          message: `Doctor Basic with doctor_id #${doctor_id} not found.`
+        };
+      }
+      return {
+        success: true,
+        message: `Successfully updated Doctor Basic with doctor_id #${doctor_id}.`,
+      };
+    } catch (error) {
+      // Let NestJS's global exception filter handle the error for a consistent response
+      console.log("error",error) 
+      return {
+        success: false,
+        message: 'Failed to update Doctor Basic.',
+      };
+    }
+  }
+
+
+  @Delete('/dodctor/paper/:paper_id')
+  async deleteUserById(@Param('paper_id', ParseIntPipe) paper_id: string) {
+    try {
+      const result = await this.doctorPapersService.deleteDoctorPaper(paper_id);
+      if (result.affected === 0) {
+        // throw new NotFoundException(`Hospital with HID #${hid} not found.`);
+         return {
+           success: false,
+           message: `Remvoe DoctorPaper with paper_id #${paper_id} not found.`
+         };
+       }
+       return {
+         success: true,
+         message: `Successfully Remvoe DoctorPaper with paper_id #${paper_id}.`,
+       };
+     } catch (error) {
+       // Let NestJS's global exception filter handle the error for a consistent response
+       console.log("error",error) 
+       return {
+         success: false,
+         message: 'Failed to Remvoe DoctorPaper.',
+       };
+     }
+  }
+
+
   @Get('/search/:keyword')
   async findDoctorsByKeyword(
     @Param('keyword') keyword: string,
@@ -89,6 +173,7 @@ export class DoctorsController {
       throw new NotFoundException('Doctor not found');
     }
   }
+
   @Post()
   createHospital(@Body() createDoctorDto: CreateDoctorDto) {
     try {
