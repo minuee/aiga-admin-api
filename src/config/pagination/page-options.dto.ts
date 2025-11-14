@@ -19,9 +19,16 @@ export class PageOptionsDto {
     @ApiPropertyOptional({default : false})
     @IsOptional()
     readonly isAll?: boolean;
-    
 
-    @ApiPropertyOptional({default :'keyword'})
+    @ApiPropertyOptional({default : null})
+    @IsOptional()
+    readonly is_clear?: boolean;
+
+    @ApiPropertyOptional({default : null})
+    @IsOptional()
+    readonly is_active? : string;
+
+    @ApiPropertyOptional({default : null})
     @IsOptional()
     readonly keyword?: string;
 

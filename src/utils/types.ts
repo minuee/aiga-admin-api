@@ -35,7 +35,26 @@ export type UpdateReviewParams = {
   explaination_score: number;
   satisfaction_score: number;
   recommand_score: number;
-  }
+}
+
+export type UpdateNoticeParams = {
+  notice_id: any;
+  title: string;
+  content: string;
+  is_active: string;
+  open_date: string;
+  writer: string;
+}
+
+export type UpdateOpinionParams = {
+  opinion_id: any;
+  user_id: string;
+  doctor_id: string;
+  opinion_type: string;
+  title: string;
+  content: string;
+  memo: string;
+}
 
 export type CreateDoctorParams = {
   rid: string;

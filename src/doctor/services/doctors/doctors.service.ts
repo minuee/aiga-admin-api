@@ -65,7 +65,7 @@ export class DoctorsService {
   }
 
   paginate( hid : string,query:any) {
-    const { page, take, orderName, order,keyword } = query;
+    const { page, take, orderName, order,keyword, is_active = null } = query;
     const qb =  this.doctorsRepository.createQueryBuilder('db')
     .select(["db.*","dc.jsondata"])
     .addSelect(["dc.jsondata"])
