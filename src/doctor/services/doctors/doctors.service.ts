@@ -68,14 +68,34 @@ export class DoctorsService {
     const { page, take, orderName, order,keyword, is_active = null } = query;
     const qb =  this.doctorsRepository.createQueryBuilder('db')
     .select(["db.*","dc.jsondata"])
-    .addSelect(["dc.jsondata"])
-    .addSelect((qb) => {
-      return qb.select('COUNT(*) as totalCount').from(Doctor,'db').where("db.hid = :hid", { hid })
+    .addSelect((subQuery) => {
+      const sq = subQuery.select('COUNT(*)').from(Doctor, 'd_count')
+        .where('d_count.hid = :hid', { hid });
+
+      if (is_active != null) {
+        if ( is_active == '9') {
+          sq.andWhere('d_count.is_active in ( 1,2 )', { isActive: is_active });
+        }else{
+          sq.andWhere('d_count.is_active = :isActive', { isActive: is_active });
+        }
+      }
+      if (keyword) {
+        sq.andWhere("(d_count.doctorname LIKE :keyword OR d_count.specialties LIKE :keyword)", { keyword: `%${keyword}%` });
+      }
+      return sq;
     }, "totalCount")
     .leftJoin(DoctorCareer,'dc','db.rid = dc.rid')
     .where("db.hid = :hid", { hid });
+    if ( is_active != null  ) {
+      if ( is_active == '9') {
+        qb.andWhere("db.is_active in ( 1,2 )", { isActive: is_active })
+      }else{
+        qb.andWhere("db.is_active = :isActive", { isActive: is_active })
+      }
+        
+    }
     if ( keyword ) {
-      qb.where("db.doctorname like :keyword OR db.specialties like :keyword", { keyword: `%${keyword}%` })
+      qb.andWhere("(db.doctorname like :keyword OR db.specialties like :keyword)", { keyword: `%${keyword}%` })
     }
     return qb.orderBy( orderName == 'deptname' ? `db.${orderName}` : orderName,order)
     .offset(page == 1 ? page-1 : (page-1)*take)
