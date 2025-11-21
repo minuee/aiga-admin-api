@@ -8,11 +8,13 @@ import { UpdateDoctorBasicDto } from 'src/doctor/dtos/UpdateDoctorBasic.dto';
 import { UpdateDoctorCareerDto } from 'src/doctor/dtos/UpdateDoctorCareer.dto';
 import { CreateDoctorParams, } from 'src/utils/types';
 import { Repository,Like } from 'typeorm';
+import { Hospital } from 'src/typeorm/entities/Hospital';
 
 @Injectable()
 export class DoctorsService {
   constructor(
     @InjectRepository(Doctor) private doctorsRepository: Repository<Doctor>,
+    @InjectRepository(Hospital) private hospitalRepository: Repository<Hospital>,
     @InjectRepository(DoctorCareer) private doctorsCareerRepository: Repository<DoctorCareer>
   ) {}
 
@@ -67,7 +69,7 @@ export class DoctorsService {
   paginate( hid : string,query:any) {
     const { page, take, orderName, order,keyword, is_active = null } = query;
     const qb =  this.doctorsRepository.createQueryBuilder('db')
-    .select(["db.*","dc.jsondata"])
+    .select(["db.*","dc.jsondata",'h2.shortName as prev_hospitalName'])
     .addSelect((subQuery) => {
       const sq = subQuery.select('COUNT(*)').from(Doctor, 'd_count')
         .where('d_count.hid = :hid', { hid });
@@ -85,6 +87,8 @@ export class DoctorsService {
       return sq;
     }, "totalCount")
     .leftJoin(DoctorCareer,'dc','db.rid = dc.rid')
+    .leftJoin(Doctor,'db2','db.prev_rid = db2.rid_long')
+    .leftJoin(Hospital,'h2','db2.hid = h2.hid')
     .where("db.hid = :hid", { hid });
     if ( is_active != null  ) {
       if ( is_active == '9') {
