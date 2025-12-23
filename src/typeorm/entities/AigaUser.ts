@@ -44,4 +44,9 @@ export class AigaUser {
 
   @Column()
   updatedAt: Date;
+
+  @Column()
+  lastLoginAt: Date;
+
+  total_token_usage: number;
 }

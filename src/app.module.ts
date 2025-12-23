@@ -14,12 +14,14 @@ import { Review } from './typeorm/entities/Review'; // Review 엔티티 임포�
 import { Opinion } from './typeorm/entities/Opinion'; // Opinion 엔티티 임포트
 import { AigaUser } from './typeorm/entities/AigaUser'; // Review 엔티티 임포트
 import { Notice } from './typeorm/entities/Notice'; // Opinion 엔티티 임포트
+import { Chatting } from './typeorm/entities/Chatting'; // Chatting 엔티티 임포트
 import { UsersModule } from './users/users.module';
 import { HospitalsModule } from './hospital/hospitals.module';
 import { DoctorsModule } from './doctor/doctors.module';
 import { ReviewsModule } from './review/reviews.module';
 import { OpinionsModule } from './opinion/opinions.module';
 import { NoticeModule } from './notice/notices.module';
+import { AigaUsersModule } from './aiga-users/aiga-users.module';
 
 @Module({
   imports: [
@@ -46,7 +48,7 @@ import { NoticeModule } from './notice/notices.module';
       password: process.env.DB_PASSWORD,
       database: `${process.env.DB_DATABASE}_service`, // aiga2025_service
       logging : true,
-      entities: [Review,Opinion,AigaUser,Notice], // Review 엔티티를 이 연결에 할당
+      entities: [Review,Opinion,AigaUser,Notice,Chatting], // Review 엔티티를 이 연결에 할당
       synchronize: false,
     }),
     ConfigModule,
@@ -55,7 +57,8 @@ import { NoticeModule } from './notice/notices.module';
     DoctorsModule,
     ReviewsModule,
     OpinionsModule,
-    NoticeModule
+    NoticeModule,
+    AigaUsersModule
   ],
   controllers: [AppController],
   providers: [AppService],
