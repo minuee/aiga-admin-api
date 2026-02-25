@@ -4,6 +4,7 @@ import { Notice } from 'src/typeorm/entities/Notice';
 import { AigaUser } from 'src/typeorm/entities/AigaUser';
 import { UpdateNoticeParams } from 'src/utils/types';
 import { Repository,Like } from 'typeorm';
+import { CreateNoticeDto } from "../../dtos/CreateNotice.dto"
 
 @Injectable()
 export class NoticesService {
@@ -38,6 +39,7 @@ export class NoticesService {
         return subQuery;
       }, "totalCount")
       .leftJoin(AigaUser, 'user', 'user.user_id = tb_notice.writer')
+      .where('tb_notice.is_delete = :is_delete', { is_delete: false }) // Add this condition
       .orderBy(orderName, order)
       .offset(page == 1 ? page - 1 : (page - 1) * take)
       .limit(take);
@@ -52,7 +54,8 @@ export class NoticesService {
   findNoticesByNotice_id( notice_id : string) {
     return this.noticeRepository.find({
       where : {
-        notice_id : notice_id
+        notice_id : notice_id,
+        is_delete: false
       }
     });
   }
@@ -60,11 +63,24 @@ export class NoticesService {
   findNoticesByKeyword( search_word : string) {
     return this.noticeRepository.find({
       where : {
-        content : Like(`%${search_word}%`)
+        content : Like(`%${search_word}%`),
+        is_delete: false
       }
     });
   }
 
+
+  createNotice(noticeDetails: CreateNoticeDto) {
+    const newNotice = this.noticeRepository.create({
+      ...noticeDetails,
+    });
+    return this.noticeRepository.save(newNotice);
+  }
+
+  softDeleteNotices(ids: number[]) {
+    const stringIds = ids.map(id => String(id)); // Convert number[] to string[]
+    return this.noticeRepository.update(stringIds, { is_delete: true, updateAt: new Date() });
+  }
 
   updateNotice(notice_id: string, updateNoticeDetails: UpdateNoticeParams) {
     return this.noticeRepository.update({ notice_id }, { ...updateNoticeDetails });

@@ -4,7 +4,7 @@ import { IsNotEmpty, IsOptional } from 'class-validator';
 export class UpdateNoticeDto {
   @ApiProperty()
   @IsNotEmpty()
-  notice_id: number;
+  notice_id: string;
 
   @ApiProperty()
   @IsNotEmpty()
@@ -16,7 +16,7 @@ export class UpdateNoticeDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  is_active: string;
+  is_active: boolean;
 
   @ApiProperty()
   @IsOptional()

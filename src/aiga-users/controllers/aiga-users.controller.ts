@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, ParseIntPipe, Query, NotFoundException } from '@nestjs/common';
+import { Controller,Get,Post,Body,Param,Delete,Patch,Query,Put} from '@nestjs/common';
 import { AigaUsersService } from '../services/aiga-users.service';
 import { CreateAigaUserDto } from '../dtos/CreateAigaUser.dto';
 import { UpdateAigaUserDto } from '../dtos/UpdateAigaUser.dto';
 import { PageDto, PageOptionsDto } from 'src/config/pagination';
+import { AigaUser } from 'src/typeorm/entities/AigaUser';
+import { ResetRestrictionDto } from '../dtos/ResetRestriction.dto';
 
 @Controller('aiga-users')
 export class AigaUsersController {
@@ -13,59 +15,36 @@ export class AigaUsersController {
     return this.aigaUsersService.createAigaUser(createAigaUserDto);
   }
 
+  @Put('/reset-restriction/:userId')
+  resetRestriction(
+    @Param('userId') userId: string,
+    @Body() resetDto: ResetRestrictionDto,
+  ) {
+    return this.aigaUsersService.resetRestriction(userId, resetDto.adminId);
+  }
+
   @Get()
-  async getAigaUsers(
+  getAigaUsers(
     @Query() pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<CreateAigaUserDto>> {
-    try {
-      let retData:any = {
-        data : [],
-        meta : {
-          currentPage : 0,
-          pageCount : 0,
-          totalCount : 0,
-          isOrder : 'default',
-          orderBy : 'ASC',
-          orderName : 'null'
-        }
-      }
-      const users:any = await this.aigaUsersService.findAigaUsers(pageOptionsDto);
-      if ( users.length > 0 ) {
-        retData = {
-          data : users,
-          meta : {
-            currentPage : pageOptionsDto.page,
-            pageCount : pageOptionsDto.take,
-            orderBy : pageOptionsDto.order,
-            orderName : pageOptionsDto.orderName,
-            isAll : pageOptionsDto.isAll,
-            totalCount : parseInt(users[0].totalCount)
-          }
-        }
-        return retData;
-      }
-      return retData; // 데이터가 없는 경우 빈 retData 반환
-    } catch (error) {
-      console.log("error",error)
-      throw new NotFoundException('AigaUser not found');
-    }
+  ): Promise<PageDto<AigaUser>> {
+    return this.aigaUsersService.findAigaUsers(pageOptionsDto);
   }
 
   @Get(':user_id')
-  getAigaUserById(@Param('user_id', ParseIntPipe) user_id: number) {
+  getAigaUserById(@Param('user_id') user_id: string) {
     return this.aigaUsersService.getAigaUser(user_id);
   }
 
   @Patch(':user_id')
   updateAigaUserById(
-    @Param('user_id', ParseIntPipe) user_id: number,
+    @Param('user_id') user_id: string,
     @Body() updateAigaUserDto: UpdateAigaUserDto,
   ) {
     return this.aigaUsersService.updateAigaUser(user_id, updateAigaUserDto);
   }
 
   @Delete(':user_id')
-  deleteAigaUserById(@Param('user_id', ParseIntPipe) user_id: number) {
+  deleteAigaUserById(@Param('user_id') user_id: string) {
     return this.aigaUsersService.deleteAigaUser(user_id);
   }
 }

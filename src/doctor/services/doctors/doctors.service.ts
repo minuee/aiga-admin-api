@@ -3,25 +3,47 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from 'src/typeorm/entities/Doctor';
 import { DoctorCareer } from 'src/typeorm/entities/DoctorCareer';
 import { DoctorPaper } from 'src/typeorm/entities/DoctorPaper';
+import { DoctorEvaluation } from 'src/typeorm/entities/DoctorEvaluation'; // DoctorEvaluation Entity import
 import { CreateDoctorDto } from 'src/doctor/dtos/CreateDoctor.dto';
 import { UpdateDoctorBasicDto } from 'src/doctor/dtos/UpdateDoctorBasic.dto';
 import { UpdateDoctorCareerDto } from 'src/doctor/dtos/UpdateDoctorCareer.dto';
+import { UpdateDoctorEvaluationDto } from 'src/doctor/dtos/UpdateDoctorEvaluation.dto';
 import { CreateDoctorParams, } from 'src/utils/types';
 import { Repository,Like } from 'typeorm';
 import { Hospital } from 'src/typeorm/entities/Hospital';
+import { DoctorSpecialty } from 'src/typeorm/entities/DoctorSpecialty';
+import { Specialty } from 'src/typeorm/entities/Specialty';
+import { DoctorSpecialtyDto } from 'src/doctor/dtos/DoctorSpecialty.dto';
 
 @Injectable()
 export class DoctorsService {
   constructor(
     @InjectRepository(Doctor) private doctorsRepository: Repository<Doctor>,
     @InjectRepository(Hospital) private hospitalRepository: Repository<Hospital>,
-    @InjectRepository(DoctorCareer) private doctorsCareerRepository: Repository<DoctorCareer>
+    @InjectRepository(DoctorCareer) private doctorsCareerRepository: Repository<DoctorCareer>,
+    @InjectRepository(DoctorEvaluation) private doctorEvaluationRepository: Repository<DoctorEvaluation>, // DoctorEvaluation Repository 주입
+    @InjectRepository(DoctorSpecialty) private doctorSpecialtyRepository: Repository<DoctorSpecialty>,
+    @InjectRepository(Specialty) private specialtyRepository: Repository<Specialty>,
   ) {}
+
+  async findDoctorSpecialtyByDoctorId(doctorId: number): Promise<DoctorSpecialtyDto[]> {
+    const doctorSpecialties = await this.doctorSpecialtyRepository
+      .createQueryBuilder('ds')
+      .innerJoin('ds.specialty', 's')
+      .where('ds.doctor_id = :doctorId', { doctorId })
+      .select(['s.specialty_id as specialty_id', 's.specialty as specialty'])
+      .getRawMany();
+
+    return doctorSpecialties.map(item => ({
+        specialty_id: item.specialty_id,
+        specialty: item.specialty
+    }));
+  }
 
   async findDoctors() {
     const data = await this.doctorsRepository.findAndCount(
       {
-        select : ['hid','rid','deptname','doctorname'],
+        select : ['hid','rid_long','deptname','doctorname'],
         order : {
           hid : "ASC",
           deptname : "ASC",
@@ -64,6 +86,40 @@ export class DoctorsService {
       skip : 0,
         take : 10
     });
+  }
+
+  // 의사 평가 정보 조회 메서드 추가
+  findDoctorEvaluationByDoctorId(doctorId: number) {
+    return this.doctorEvaluationRepository.find({
+      where: { doctorId },
+      select: [
+        'doctorEvalId',
+        'doctorId',
+        'dataVersionId',
+        'standardSpec',
+        'kindness',
+        'satisfaction',
+        'explanation',
+        'recommendation',
+        'patientScore',
+        'paperScore',
+        'publicScore',
+        'peerScore',
+        'createAt',
+        'updateAt',
+      ],
+      order: {
+        createAt: 'DESC', // 최신 평가를 먼저 가져오도록 정렬
+      },
+    });
+  }
+
+  updateDoctorEvaluationByEvalId(doctorEvalId: number, updateDoctorEvaluationDto: UpdateDoctorEvaluationDto) {
+    return this.doctorEvaluationRepository.update({ doctorEvalId }, { ...updateDoctorEvaluationDto });
+  }
+
+  deleteDoctorEvaluationByEvalId(doctorEvalId: number) {
+    return this.doctorEvaluationRepository.delete({ doctorEvalId });
   }
 
   paginate( hid : string,query:any) {
@@ -115,6 +171,20 @@ export class DoctorsService {
     });
   }
 
+  async findDoctorById(doctorId: string): Promise<any | undefined> {
+    return await this.doctorsRepository.createQueryBuilder('doctor')
+      .select([
+        'doctor.*',
+        'dc.jsondata AS jsondata',
+        'prevHospital.shortName AS prev_hospitalName'
+      ])
+      .leftJoin(DoctorCareer,'dc','doctor.rid = dc.rid')
+      .leftJoin(Doctor, 'prevDoctor', 'doctor.prev_rid = prevDoctor.rid_long')
+      .leftJoin(Hospital, 'prevHospital', 'prevDoctor.hid = prevHospital.hid')
+      .where('doctor.doctor_id = :doctorId', { doctorId })
+      .getRawOne();
+  }
+
   createDoctor(doctorDetails: CreateDoctorParams) {
     const newDoctor = this.doctorsRepository.create({
       ...doctorDetails
@@ -123,11 +193,23 @@ export class DoctorsService {
     return this.doctorsRepository.save(newDoctor);
   }
 
-  updateDoctorBasic(rid: string, updateDoctorBasicDetails: UpdateDoctorBasicDto) {
-    return this.doctorsRepository.update({ rid }, { ...updateDoctorBasicDetails });
+  updateDoctorBasic(rid_long: string, updateDoctorBasicDetails: UpdateDoctorBasicDto) {
+    return this.doctorsRepository.update({ rid_long }, { ...updateDoctorBasicDetails });
   }
 
-  updateDoctorCareer(rid: string, updateDoctorCareerDetails: UpdateDoctorCareerDto) {
-    return this.doctorsCareerRepository.update({ rid }, { ...updateDoctorCareerDetails });
+  updateDoctorCareer(rid_long: string, updateDoctorCareerDetails: UpdateDoctorCareerDto) {
+    console.log("updateDoctorCareerDetails).length",Object.keys(updateDoctorCareerDetails))
+    if (Object.keys(updateDoctorCareerDetails).length === 0) {
+      return Promise.resolve({ affected: 0 });
+    }
+    const updateData = {
+      ...updateDoctorCareerDetails,
+      jsondata: JSON.stringify(updateDoctorCareerDetails.jsondata),
+      education: JSON.stringify(updateDoctorCareerDetails.education),
+      career: JSON.stringify(updateDoctorCareerDetails.career),
+      etc: JSON.stringify(updateDoctorCareerDetails.etc),
+    };
+
+    return this.doctorsCareerRepository.update({ rid_long }, updateData);
   }
 }

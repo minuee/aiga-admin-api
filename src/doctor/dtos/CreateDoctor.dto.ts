@@ -58,4 +58,12 @@ export class CreateDoctorDto {
   @IsOptional()
   standard_spec: string;
 
+  @ApiProperty({ type: 'string', format: 'json', description: 'Doctor career JSON data' })
+  @IsOptional()
+  jsondata: string; // DoctorCareer의 jsondata
+
+  @ApiProperty({ description: 'Previous hospital name' })
+  @IsOptional()
+  prev_hospitalName: string; // 이전 병원 이름
+
 }

@@ -23,7 +23,10 @@ export class Notice { // Changed from Hospital to Review
   content: string;
 
   @Column()
-  is_active: string;
+  is_active: boolean;
+
+  @Column()
+  is_delete : boolean;
 
   @Column()
   open_date: string;

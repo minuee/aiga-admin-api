@@ -16,7 +16,7 @@ import { Hospital } from './Hospital';
 export class Doctor {
 
   @PrimaryColumn()
-  rid: string;
+  rid_long: string;
 
   @Column()
   hid: string;
@@ -32,6 +32,12 @@ export class Doctor {
   
   @Column()
   doctor_url: string;
+
+  @Column()
+  new_doctor_url: string;
+
+  @Column()
+  is_active: string;
   
   @Column()
   prev_rid: string;
@@ -63,8 +69,8 @@ export class Doctor {
   @Column()
   updateAt: Date;
 
-  @OneToOne(() => DoctorCareer, (doctor_career) => doctor_career.rid )
-  @JoinColumn({ name : 'rid'})
+  @OneToOne(() => DoctorCareer, (doctor_career) => doctor_career.rid_long )
+  @JoinColumn({ name : 'rid_long'})
   doctor_career : DoctorCareer;
 
   @ManyToOne(() => Hospital)

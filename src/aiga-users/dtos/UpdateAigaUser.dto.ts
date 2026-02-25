@@ -5,6 +5,6 @@ export class UpdateAigaUserDto {
   nickname?: string;
   profile_img?: string;
   agreement?: string;
-  restricted_time?: number;
+  restricted_time?: string;
   lastLoginAt?: Date;
 }

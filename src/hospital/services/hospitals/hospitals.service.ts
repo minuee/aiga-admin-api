@@ -2,17 +2,62 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from 'src/typeorm/entities/Hospital';
 import { Doctor as DoctorEntity } from 'src/typeorm/entities/Doctor';
-import { CreateHospitalParams } from 'src/utils/types';
+import { HospitalAlias } from 'src/typeorm/entities/HospitalAlias';
+import { HospitalEvaluation } from 'src/typeorm/entities/HospitalEvaluation'; // HospitalEvaluation Entity import
+import { CreateHospitalParams, CreateHospitalAliasParams, UpdateHospitalAliasParams } from 'src/utils/types';
 import { Repository,Like } from 'typeorm';
 
 @Injectable()
 export class HospitalsService {
   constructor(
-    @InjectRepository(Hospital) private hospitalsRepository: Repository<Hospital>
+    @InjectRepository(Hospital) private hospitalsRepository: Repository<Hospital>,
+    @InjectRepository(HospitalAlias) private hospitalAliasRepository: Repository<HospitalAlias>,
+    @InjectRepository(HospitalEvaluation) private hospitalEvaluationRepository: Repository<HospitalEvaluation>, // HospitalEvaluation Repository 주입
   ) {}
 
   findHospitals() {
     return this.hospitalsRepository.find();
+  }
+
+  findHospitalsAliasByHid(hid: string) {
+    return this.hospitalAliasRepository.find({
+      where: { hid },
+      select: ['aid','standard_name', 'alias_name'],
+      order: {
+        created_at: 'ASC',
+      },
+    });
+  }
+
+  // 병원 평가 정보 조회 메서드 추가
+  findHospitalEvaluationByHid(hid: string) {
+    return this.hospitalEvaluationRepository.find({
+      where: { hid },
+      select: ['matchedDept', 'publicScore', 'dataVersionId'], // 필요한 필드만 선택
+      order: {
+        createAt: 'DESC', // 최신 평가를 먼저 가져오도록 정렬
+      },
+    });
+  }
+
+  createHospitalAlias(hospitalAliasDetails: CreateHospitalAliasParams) {
+    const newHospitalAlias = this.hospitalAliasRepository.create({
+      ...hospitalAliasDetails,
+    });
+    return this.hospitalAliasRepository.save(newHospitalAlias);
+  }
+
+  updateHospitalAlias(aid: number, updateHospitalAliasDetails: UpdateHospitalAliasParams) {
+    return this.hospitalAliasRepository.update(
+      { aid },
+      {
+        alias_name: updateHospitalAliasDetails.alias_name,
+      },
+    );
+  }
+
+  deleteHospitalAlias(aid: number) {
+    return this.hospitalAliasRepository.delete({ aid });
   }
 
   paginate( query:any) {
@@ -44,32 +89,7 @@ export class HospitalsService {
     .offset(page == 1 ? page-1 : (page-1)*take)
     .limit(take)
     .andWhere(isAllBoolean == false ? 'hospital.hid LIKE :hidPrefix' : '1=1', isAllBoolean == false ? { hidPrefix: 'H01KR%' } : {})
-    //.select(["hospital.hid","doctor_basic.doctor_count"])
-    /*.leftJoin(subquery => {
-      return subquery
-        .select(['db.hid', 'COUNT(db.rid) as doctor_count'])
-        .from(DoctorEntity, 'db')
-        .groupBy('db.hid');
-    }, 'doctor_basic','hospital.hid = doctors_basic.hid') */
-    //.loadRelationCountAndMap('hospital.hid', 'a.comments')
-    /* .loadRelationCountAndMap('hospital.hid','doctor_basic.hid','doctor_count')
-    .addSelect((qb) => {
-        return qb.select('COUNT(doctor_basic.*)','doctor_count').from(DoctorEntity,'doctor_basic').groupBy("doctor_basic.hid")
-    }) */
-    /* .andWhere((qb) => {
-      // 지금까지 결제한 횟수를 알기 위해 OrderInfo 라는 Entity를 카운트한다.
-      const subQuery = qb
-        .subQuery()
-        .select('COUNT(*)')
-        .from(DoctorEntity, 'db') 
-        .groupBy('db.hid')
-        .getQuery();
-  
-      return `${subQuery} <= 2`;
-    }) */
     .getRawMany();
-    //.leftJoin('hospital.hid', 'doctor_basic','hospital.hid = doctors_basic.hid')
-    ///.getRawMany()
   }
 
   findHospitalsByHid( id : string) {

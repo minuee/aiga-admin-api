@@ -6,6 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import * as cookieParser from 'cookie-parser';
 import { join } from 'path';
 import { AppModule } from './app.module';
+import { ApiKeyGuard } from './common/guards/api-key.guard';
 
 
 //swagger 추가 by noh.sn
@@ -38,8 +39,12 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       skipMissingProperties: true,
+      transform: true,
     }),
   );
+  
+  app.useGlobalGuards(new ApiKeyGuard());
+  
   console.log('NODE_ENV222:',env, process.env.NODE_ENV);
   console.log("process.env",process.env.PORT , process.env.SWAGGER_USER, process.env.SWAGGER_PASS)
   //swagger by nohsn 2025.03

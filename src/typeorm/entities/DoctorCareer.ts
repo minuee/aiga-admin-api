@@ -14,7 +14,7 @@ import { Doctor } from './Doctor';
 export class DoctorCareer {
 
   @PrimaryColumn()
-  rid: string;
+  rid_long: string;
 
   @Column()
   data_version_id: string;
@@ -37,8 +37,8 @@ export class DoctorCareer {
   @Column()
   updateAt: Date;
 
-  @OneToOne(() => DoctorCareer, (doctor_basic) => doctor_basic.rid )
-  @JoinColumn({ name : 'rid'})
+  @OneToOne(() => DoctorCareer, (doctor_basic) => doctor_basic.rid_long )
+  @JoinColumn({ name : 'rid_long'})
   doctor_basic : Doctor;
 
 }

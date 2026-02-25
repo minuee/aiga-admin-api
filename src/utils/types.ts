@@ -9,6 +9,18 @@ export type CreateHospitalParams = {
   shortName: string;
 }
 
+export type CreateHospitalAliasParams = {
+  hid: string;
+  standard_name: string;
+  shortName: string;
+  alias_name: string;
+}
+
+export type UpdateHospitalAliasParams = {
+  aid: number;
+  alias_name: string;
+}
+
 export type CreateReviewParams = {
   review_id: number;
   user_id: string;
@@ -38,10 +50,10 @@ export type UpdateReviewParams = {
 }
 
 export type UpdateNoticeParams = {
-  notice_id: any;
+  notice_id: string;
   title: string;
   content: string;
-  is_active: string;
+  is_active: boolean;
   open_date: string;
   writer: string;
 }

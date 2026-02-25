@@ -2,21 +2,21 @@ import { Controller, ParseIntPipe, NotFoundException, Query,DefaultValuePipe } f
 import { Body, Delete, Get, Param, Post, Put } from '@nestjs/common/decorators';
 import { CreateNoticeDto } from 'src/notice/dtos/CreateNotice.dto';
 import { UpdateNoticeDto } from 'src/notice/dtos/UpdateNotice.dto';
+import { DeleteNoticeDto } from 'src/notice/dtos/DeleteNotice.dto';
 
 import { NoticesService } from 'src/notice/services/notices/notice.service';
 import { PageDto, PageOptionsDto } from "src/config/pagination";
 import { ApiTags } from '@nestjs/swagger';
-@ApiTags("Notices")
+@ApiTags("Notice")
 
-@Controller('notices')
+@Controller('notice')
 export class NoticesController {
   constructor(private noticeservice: NoticesService) {}
 
 
   @Get()
-  async getReviews( @Query() pageOptionsDto: PageOptionsDto ): Promise<PageDto<CreateNoticeDto>> {
+  async getNotices( @Query() pageOptionsDto: PageOptionsDto ): Promise<PageDto<CreateNoticeDto>> {
     try {
-      console.log("pageOptionsDto",pageOptionsDto)
       let retData:any = {
         data : [],
         meta : {
@@ -56,7 +56,6 @@ export class NoticesController {
   ) {
     try {
       const result = await this.noticeservice.updateNotice(notice_id, updateNoticeDto);
-      console.log("result",updateNoticeDto);
       if (result.affected === 0) {
        // throw new NotFoundException(`Hospital with HID #${hid} not found.`);
         return {
@@ -78,6 +77,50 @@ export class NoticesController {
     }
   }
   
+
+  @Post('')
+  async createNotice(@Body() createNoticeDto: CreateNoticeDto) {
+    try {
+      const newNotice = await this.noticeservice.createNotice(createNoticeDto);
+      return {
+        success: true,
+        message: 'Successfully created new Notice.',
+        data: newNotice,
+      };
+    } catch (error) {
+      console.error("Error creating notice:", error);
+      return {
+        success: false,
+        message: 'Failed to create Notice.',
+        error: error.message,
+      };
+    }
+  }
+
+  @Delete('')
+  async deleteNotices(@Body() deleteNoticeDto: DeleteNoticeDto) {
+    try {
+      const result = await this.noticeservice.softDeleteNotices(deleteNoticeDto.noticeIds);
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: `No notices found with IDs: ${deleteNoticeDto.noticeIds.join(', ')}.`,
+        };
+      }
+      return {
+        success: true,
+        message: `Successfully soft-deleted ${result.affected} notices.`,
+      };
+    } catch (error) {
+      console.error("Error soft-deleting notices:", error);
+      return {
+        success: false,
+        message: 'Failed to soft-delete notices.',
+        error: error.message,
+      };
+    }
+  }
+
   @Get('/:notice_id')
   async getNoticesByNoticeid(
     @Param('notice_id') notice_id: string,
@@ -103,5 +146,5 @@ export class NoticesController {
       throw new NotFoundException('Data not found');
     }
   }
-  
+
 }

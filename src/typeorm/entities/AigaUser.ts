@@ -7,10 +7,10 @@ import {
   OneToMany,
 } from 'typeorm';
 
-@Entity({ name: 'tb_user',synchronize: false })
+@Entity({ name: 'tb_user', synchronize: false })
 export class AigaUser {
-  @PrimaryColumn()
-  user_id: number;
+  @PrimaryColumn({ type: 'varchar', length: 100 })
+  user_id: string;
 
   @Column()
   sns_type: string;
@@ -27,8 +27,8 @@ export class AigaUser {
   @Column()
   profile_img: string;
 
-  @Column()
-  restricted_time: number;
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  restricted_time: string;
 
   @Column()
   agreement: string;

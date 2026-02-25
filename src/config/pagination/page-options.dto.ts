@@ -1,35 +1,50 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Max, Min, IsString } from 'class-validator';
+
 export enum Order {
     ASC = 'ASC',
     DESC = 'DESC',
-  }
+}
+
+export enum SearchType {
+    NICKNAME = 'nickname',
+    SESSION_ID = 'session_id',
+    QUESTION = 'question',
+    EMPTY = '',
+}
 
 export class PageOptionsDto {
 
-    @ApiPropertyOptional({default : 'hid'})
+    @ApiPropertyOptional({ default: 'hid' })
     @IsOptional()
     readonly isOrder?: string;
 
-    @ApiPropertyOptional({default :'hid'})
+    @ApiPropertyOptional({ default: 'hid' })
     @IsOptional()
     readonly orderName?: string;
 
-    @ApiPropertyOptional({default : false})
+    @ApiPropertyOptional({ default: false })
+    @Type(() => Boolean)
     @IsOptional()
     readonly isAll?: boolean;
 
-    @ApiPropertyOptional({default : null})
+    @ApiPropertyOptional({ default: null })
     @IsOptional()
     readonly is_clear?: boolean;
 
-    @ApiPropertyOptional({default : null})
+    @ApiPropertyOptional({ default: null })
     @IsOptional()
-    readonly is_active? : string;
+    readonly is_active?: string;
 
-    @ApiPropertyOptional({default : null})
+    @ApiPropertyOptional({ enum: SearchType, default: SearchType.EMPTY })
+    @IsEnum(SearchType)
     @IsOptional()
+    readonly searchType?: SearchType = SearchType.EMPTY;
+
+    @ApiPropertyOptional({ default: null })
+    @IsOptional()
+    @IsString()
     readonly keyword?: string;
 
     @ApiPropertyOptional({ enum: Order, default: Order.ASC })
@@ -63,4 +78,5 @@ export class PageOptionsDto {
         return (this.page - 1) * this.take;
     }
 }
+
 

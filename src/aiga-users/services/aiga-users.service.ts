@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { CreateAigaUserDto } from '../dtos/CreateAigaUser.dto';
 import { UpdateAigaUserDto } from '../dtos/UpdateAigaUser.dto';
 import { PageDto, PageOptionsDto, PageMetaDto } from 'src/config/pagination';
+import { TokenResetLog } from 'src/typeorm/entities/TokenResetLog';
 
 @Injectable()
 export class AigaUsersService {
@@ -14,11 +15,58 @@ export class AigaUsersService {
     private readonly aigaUserRepository: Repository<AigaUser>,
     @InjectRepository(Chatting, 'service')
     private readonly chattingRepository: Repository<Chatting>,
+    @InjectRepository(TokenResetLog, 'service')
+    private readonly tokenResetLogRepository: Repository<TokenResetLog>,
   ) {}
+
+  async resetRestriction(userId: string, adminId: string): Promise<{ success: boolean, message: string }> {
+    const user = await this.getAigaUser(userId);
+    if (!user) {
+      throw new HttpException('AigaUser not found', HttpStatus.NOT_FOUND);
+    }
+
+    const twentyFourHoursAgo = new Date();
+    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+
+    // 1. tb_chatting 테이블에서 최근 24시간의 used_token 총합 조회
+    const { sum } = await this.chattingRepository
+      .createQueryBuilder('chatting')
+      .select('SUM(chatting.grand_total_token)', 'sum')
+      .where('chatting.user_id = :userId', { userId })
+      .andWhere('chatting.createdAt >= :twentyFourHoursAgo', { twentyFourHoursAgo })
+      .getRawOne();
+    
+    const resetSumToken = sum ? parseInt(sum, 10) : 0;
+
+    // 2. tb_user 테이블의 restricted_time을 null로 업데이트
+    await this.aigaUserRepository.update(
+      { user_id: userId },
+      { restricted_time: null },
+    );
+
+    // 3. tb_chatting 테이블의 최근 24시간 used_token을 0으로 업데이트
+    await this.chattingRepository
+      .createQueryBuilder()
+      .update(Chatting)
+      .set({ used_token: 0 })
+      .where('user_id = :userId', { userId })
+      .andWhere('createdAt >= :twentyFourHoursAgo', { twentyFourHoursAgo })
+      .execute();
+
+    // 4. 로그 기록
+    const newLog = this.tokenResetLogRepository.create({
+      userId: userId,
+      adminUserId: adminId,
+      resetSumToken: resetSumToken,
+    });
+    await this.tokenResetLogRepository.save(newLog);
+
+    return { success: true, message: 'User restriction reset successfully.' };
+  }
 
   async findAigaUsers(
     pageOptionsDto: PageOptionsDto,
-  ): Promise<any> { // 반환 타입을 any로 변경하여 컨트롤러에서 가공
+  ): Promise<PageDto<AigaUser>> {
     const queryBuilder = this.aigaUserRepository.createQueryBuilder('aigaUser');
 
     const twentyFourHoursAgo = new Date();
@@ -28,7 +76,7 @@ export class AigaUsersService {
       .createQueryBuilder('chatting')
       .select('chatting.user_id', 'user_id')
       .addSelect('SUM(chatting.used_token)', 'total_token_usage')
-      .where('chatting.createAt >= :twentyFourHoursAgo', {
+      .where('chatting.createdAt >= :twentyFourHoursAgo', {
         twentyFourHoursAgo,
       })
       .groupBy('chatting.user_id');
@@ -36,18 +84,27 @@ export class AigaUsersService {
     queryBuilder
       .select('aigaUser.*')
       .addSelect('IFNULL(tokenUsage.total_token_usage, 0)', 'total_token_usage')
-      .addSelect((qb) => { // hospitals.service.ts의 paginate2와 유사하게 totalCount를 서브쿼리로 가져옴
-        const totalCountSubquery = qb.subQuery()
-          .select('COUNT(*)')
-          .from(AigaUser, 'user_total_count'); // AigaUser 엔티티를 사용하여 totalCount를 가져옴
-        return totalCountSubquery;
-      }, "totalCount")
       .leftJoin(
         `(${subQuery.getQuery()})`,
         'tokenUsage',
         'tokenUsage.user_id = aigaUser.user_id',
       )
       .setParameters(subQuery.getParameters());
+
+    if (pageOptionsDto.keyword) {
+      queryBuilder.andWhere('aigaUser.nickname LIKE :search', {
+        search: `%${pageOptionsDto.keyword}%`,
+      });
+    }
+
+    // `COUNT` 쿼리를 위한 새로운 쿼리 빌더 생성 (LIMIT, OFFSET, ORDER BY 없이 WHERE 조건만 포함)
+    const countQueryBuilder = this.aigaUserRepository.createQueryBuilder('aigaUser');
+    if (pageOptionsDto.keyword) {
+      countQueryBuilder.andWhere('aigaUser.nickname LIKE :search', {
+        search: `%${pageOptionsDto.keyword}%`,
+      });
+    }
+    const itemCount = await countQueryBuilder.getCount();
 
     if (pageOptionsDto.orderName) {
       queryBuilder.orderBy(
@@ -57,22 +114,21 @@ export class AigaUsersService {
     } else {
       queryBuilder.orderBy('aigaUser.user_id', 'DESC');
     }
-
-    if (pageOptionsDto.keyword) {
-      queryBuilder.andWhere('aigaUser.nickname LIKE :search', {
-        search: `%${pageOptionsDto.keyword}%`,
-      });
-    }
     
-    // isAll 파라미터가 'true'가 아니거나, 없거나, 'false'일 경우에만 페이징 적용
-    // pageOptionsDto.isAll의 타입이 boolean으로 보장되지 않을 수 있으므로 문자열 비교
-    if (pageOptionsDto.isAll === undefined || pageOptionsDto.isAll === false ) {
-      queryBuilder.offset(pageOptionsDto.skip).limit(pageOptionsDto.take);
-    }
-
+    queryBuilder.offset(pageOptionsDto.skip).limit(pageOptionsDto.take);
+    
     const users = await queryBuilder.getRawMany();
 
-    return users; // 컨트롤러에서 PageDto 구성
+    const mappedUsers = users.map(user => {
+      const aigaUser = new AigaUser();
+      Object.assign(aigaUser, user);
+      aigaUser.total_token_usage = parseInt(user.total_token_usage, 10); 
+      return aigaUser;
+    });
+
+    const pageMetaDto = new PageMetaDto({ itemCount, pageOptionsDto });
+
+    return new PageDto(mappedUsers, pageMetaDto);
   }
 
   createAigaUser(aigaUserDetails: CreateAigaUserDto) {
@@ -87,7 +143,7 @@ export class AigaUsersService {
   }
 
   async updateAigaUser(
-    user_id: number,
+    user_id: string,
     updateAigaUserDetails: UpdateAigaUserDto,
   ) {
     const user = await this.getAigaUser(user_id);
@@ -102,11 +158,11 @@ export class AigaUsersService {
     );
   }
 
-  getAigaUser(user_id: number) {
+  getAigaUser(user_id: string) {
     return this.aigaUserRepository.findOneBy({ user_id });
   }
 
-  async deleteAigaUser(user_id: number) {
+  async deleteAigaUser(user_id: string) {
     const user = await this.getAigaUser(user_id);
 
     if (!user) {
