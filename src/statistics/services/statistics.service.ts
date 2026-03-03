@@ -87,7 +87,8 @@ export class StatisticsService {
         'spec.standard_spec = proposal.keyword COLLATE utf8mb4_0900_ai_ci', // Collation handled here
       )
       .select([
-        'proposal.keyword as disease', // Disease from ChatSearchProposal
+        'spec.standard_group as standard_group',
+        'proposal.keyword as standard_spec', // Disease from ChatSearchProposal
         'log.infoDid as did',
         'log.infoName as info_name',
         'log.infoHospitalName as info_hospital_name',
@@ -108,16 +109,18 @@ export class StatisticsService {
     }
 
     qb.groupBy(
-      'proposal.keyword, log.infoDid, log.infoName, log.infoHospitalName, log.infoDeptname, log.infoHid',
+      'spec.standard_group, proposal.keyword, log.infoDid, log.infoName, log.infoHospitalName, log.infoDeptname, log.infoHid',
     );
-    qb.orderBy('disease', 'ASC');
+    qb.orderBy('standard_group', 'ASC');
+    qb.addOrderBy('standard_spec', 'ASC');
     qb.addOrderBy('search_count', 'DESC');
 
     const results = await qb.getRawMany();
 
     const groupedResults = results.reduce((acc, current) => {
       const {
-        disease,
+        standard_group,
+        standard_spec,
         did,
         info_name,
         info_hospital_name,
@@ -126,15 +129,26 @@ export class StatisticsService {
         search_count,
       } = current;
 
-      if (!acc[disease]) {
-        acc[disease] = {
-          disease: disease,
-          doctors: [],
+      let group = acc.find((g) => g.standard_group === standard_group);
+      if (!group) {
+        group = {
+          standard_group: standard_group,
+          specs: [],
         };
+        acc.push(group);
       }
 
-      if (!limit || (limit && acc[disease].doctors.length < limit)) {
-        acc[disease].doctors.push({
+      let spec = group.specs.find((s) => s.standard_spec === standard_spec);
+      if (!spec) {
+        spec = {
+          standard_spec: standard_spec,
+          doctors: [],
+        };
+        group.specs.push(spec);
+      }
+
+      if (!limit || (limit && spec.doctors.length < limit)) {
+        spec.doctors.push({
           info_did: did,
           info_name,
           info_hospital_name,
@@ -145,9 +159,9 @@ export class StatisticsService {
       }
 
       return acc;
-    }, {});
+    }, []);
 
-    let finalResult = Object.values(groupedResults);
+    const finalResult = groupedResults;
 
     return finalResult;
   }
@@ -422,7 +436,7 @@ export class StatisticsService {
   // StandardSpecialty 전체 데이터 조회 메서드 추가
   async getStandardSpecialty(): Promise<StandardSpecialty[]> {
     return this.standardSpecialtyRepository.find({
-      select: ['spec_id','standard_spec'],
+      select: ['spec_id','standard_spec','standard_group'],
     });
   }
 
