@@ -436,8 +436,39 @@ export class StatisticsService {
   // StandardSpecialty 전체 데이터 조회 메서드 추가
   async getStandardSpecialty(): Promise<StandardSpecialty[]> {
     return this.standardSpecialtyRepository.find({
-      select: ['spec_id','standard_spec','standard_group'],
+      select: ['spec_id', 'standard_spec', 'standard_group'],
     });
+  }
+
+  // StandardSpecialty 그룹 업데이트 메서드 추가
+  async updateStandardSpecialtyGroup(
+    spec_id: number,
+    standard_group: string,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const result = await this.standardSpecialtyRepository.update(
+        { spec_id },
+        {
+          standard_group,
+          updateAt: new Date(),
+        },
+      );
+
+      if (result.affected === 0) {
+        return {
+          success: false,
+          message: `StandardSpecialty with spec_id #${spec_id} not found.`,
+        };
+      }
+
+      return {
+        success: true,
+        message: `Successfully updated standard_group for spec_id #${spec_id}.`,
+      };
+    } catch (error) {
+      console.error('Error updating standard_group:', error);
+      throw new Error('Failed to update standard_group.');
+    }
   }
 
   // DataHistory 전체 데이터 조회 메서드 추가

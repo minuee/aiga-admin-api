@@ -1,5 +1,5 @@
 
-import { Controller, Get, Delete, Query, UseGuards, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Delete, Query, UseGuards, Param, NotFoundException, Patch, Body } from '@nestjs/common';
 import { StatisticsService } from '../services/statistics.service';
 import { ApiKeyGuard } from 'src/common/guards/api-key.guard';
 import { PageOptionsDto } from 'src/config/pagination/page-options.dto';
@@ -59,6 +59,17 @@ export class StatisticsController {
   @Get('standard-specialty')
   async getStandardSpecialty() {
     return this.statisticsService.getStandardSpecialty();
+  }
+
+  @Patch('standard-specialty-group/:spec_id')
+  async updateStandardSpecialtyGroup(
+    @Param('spec_id') spec_id: number,
+    @Body('standard_group') standard_group: string,
+  ) {
+    return this.statisticsService.updateStandardSpecialtyGroup(
+      spec_id,
+      standard_group,
+    );
   }
 
   @Get('standard-specialty-doctors/:dept_name')
